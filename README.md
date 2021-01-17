@@ -1,29 +1,21 @@
-# README #
+# TelemetryPipeline
 
-This README would normally document whatever steps are necessary to get your application up and running.
+**TODO: Add description**
 
-### What is this repository for? ###
+## Installation
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `telemetry_pipeline` to your list of dependencies in `mix.exs`:
 
-### How do I get set up? ###
+```elixir
+def deps do
+  [
+    {:telemetry_pipeline, "~> 0.1.0"}
+  ]
+end
+```
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at [https://hexdocs.pm/telemetry_pipeline](https://hexdocs.pm/telemetry_pipeline).
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
