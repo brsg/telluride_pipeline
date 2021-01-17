@@ -1,6 +1,10 @@
 # TelemetryPipeline
 
-**TODO: Add description**
+To run test: 
+
+```elixir
+mix test --only telemetry_broadway
+```
 
 ## Installation
 
