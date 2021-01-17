@@ -1,5 +1,5 @@
 defmodule TelemetryPipeline.TelemetryProducer do
-  @behaviour
+  @behaviour Broadway.Producer
   use GenStage
 
   def start_link(number) do

@@ -7,16 +7,19 @@ defmodule TelemetryPipeline.TelemetryBroadway do
     Broadway.start_link(__MODULE__, opts)
   end
 
-  def handle_message(_processor_atom, message, %{test_pid: test_pid} = _context) do
-    IO.inspect(test_pid, label: "message test_pid: ")
+  def handle_message(processor_atom, message, %{test_pid: test_pid, handle_message: message_handler} = context) do
+    # IO.inspect(processor_atom, label: "message processor_atom: ")
     send( test_pid, {:message_handled, message.data})
-    message
+    # message
+    message_handler.(message, context)
   end
 
-  def handle_batch(batcher, messages, _, %{test_pid: test_pid} = _context) do
+  def handle_batch(batcher, messages, batch_info, %{test_pid: test_pid, handle_batch: batch_handler} = context) do
     IO.inspect(batcher, label: "batch batcher: ")
+    IO.inspect(messages, label: "batch messages: ")
     send(test_pid, {:batch_handle, batcher, messages})
-    messages
+    # messages
+    batch_handler.(batcher, messages, batch_info, context)
   end
 
   ## Helpers

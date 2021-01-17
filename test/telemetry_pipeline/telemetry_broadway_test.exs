@@ -4,6 +4,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
 
   import Integer
 
+  alias Broadway.Message
   alias TelemetryPipeline.TelemetryBroadway, as: TB
 
   setup %{} = context do
@@ -12,9 +13,13 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
 
     handle_message = fn message, _ ->
       if is_odd(message.data) do
-        Message.put_batch_key(message, :odd)
+        message
+        |> Message.put_batch_key(:odd)
+        |> Message.put_batcher(:odd)
       else
-        Message.put_batch_key(message, :even)
+        message
+        |> Message.put_batch_key(:even)
+        |> Message.put_batcher(:even)
       end
     end
 
@@ -40,13 +45,15 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         default: [concurrency: 10]
       ],
       batchers: [
-        default: [concurrency: 2, batch_size: 5]
+        # default: [concurrency: 2, batch_size: 5]
+        even: [concurrency: 2, batch_size: 5],
+        odd: [concurrency: 2, batch_size: 5]
       ]
     ]
 
     {:ok, _broadway} = TB.start_link(opts)
 
-    %{broadway_name: broadway_name}
+    Map.put(context, :broadway_name, broadway_name)
   end
 
   @tag :telemetry_broadway
