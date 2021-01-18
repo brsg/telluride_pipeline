@@ -5,10 +5,29 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   import Integer
 
   alias Broadway.Message
-  alias TelemetryPipeline.TelemetryBroadway, as: TB
+  alias TelemetryPipeline.{TelemetryBroadway, TelemetryMetrics}
 
   setup %{} = context do
     test_pid = self()
+
+    :ok =
+      :telemetry.attach_many(
+        __MODULE__,
+        [
+          [:broadway, :processor, :start],
+          [:broadway, :processor, :stop],
+          [:broadway, :batcher, :start],
+          [:broadway, :batcher, :stop],
+          [:broadway, :consumer, :start],
+          [:broadway, :consumer, :stop],
+          [:broadway, :processor, :message, :start],
+          [:broadway, :processor, :message, :stop],
+          [:broadway, :processor, :message, :exception]
+        ],
+        &TelemetryMetrics.handle_event/4,
+        nil
+      )
+
     broadway_name = new_unique_name()
 
     handle_message = fn message, _ ->
@@ -52,7 +71,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
       partition_by: &partition/1
     ]
 
-    {:ok, _broadway} = TB.start_link(opts)
+    {:ok, _broadway} = TelemetryBroadway.start_link(opts)
 
     Map.put(context, :broadway_name, broadway_name)
   end
