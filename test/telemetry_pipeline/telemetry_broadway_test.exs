@@ -48,7 +48,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         # default: [concurrency: 2, batch_size: 5]
         even: [concurrency: 2, batch_size: 5],
         odd: [concurrency: 2, batch_size: 5]
-      ]
+      ],
+      partition_by: &partition/1
     ]
 
     {:ok, _broadway} = TB.start_link(opts)
@@ -58,8 +59,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
 
   @tag :telemetry_broadway
   test "test_message/3", %{broadway_name: broadway_name} do
-    ref = Broadway.test_message(broadway_name, 2)
-    IO.inspect(ref, label: "test_message_3 ref: ")
+    assert Broadway.test_message(broadway_name, 0, [])
+    # IO.puts("test_message/3")
   end
 
   ##
@@ -67,4 +68,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   defp new_unique_name() do
     :"Elixir.Broadway#{System.unique_integer([:positive, :monotonic])}"
   end
+
+  def partition(message), do: rem(message.data, 2)
+
 end
