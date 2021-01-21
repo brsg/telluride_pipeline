@@ -31,19 +31,22 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
     broadway_name = new_unique_name()
 
     handle_message = fn message, _ ->
-      if is_odd(message.data) do
-        message
-        |> Message.put_batch_key(:odd)
-        |> Message.put_batcher(:odd)
-      else
-        message
-        |> Message.put_batch_key(:even)
-        |> Message.put_batcher(:even)
-      end
+      IO.inspect(message, label: "handle_message: ")
+      # if message[:"device_id"] == "DEV_A" do
+        # message
+        # |> Message.put_batch_key(:odd)
+        # |> Message.put_batcher(:odd)
+      # else
+        # message
+        # |> Message.put_batch_key(:even)
+        # |> Message.put_batcher(:even)
+      # end
+      message
     end
 
     handle_batch = fn batcher, batch, batch_info, _ ->
-      send(test_pid, {:batch_handled, batcher, batch_info})
+      IO.inspect(batch, label: "handle_batch: ")
+      # send(test_pid, {:batch_handled, batcher, batch_info})
       batch
     end
 
@@ -57,18 +60,21 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
       name: broadway_name,
       context: context,
       producer: [
-        module: {TelemetryPipeline.TelemetryProducer, 0},
+        module: {BroadwayRabbitMQ.Producer,
+          queue: "events"
+        },
         transformer: {TelemetryPipeline.TelemetryBroadway, :transform, []},
       ],
       processors: [
         default: [concurrency: 10]
       ],
       batchers: [
-        # default: [concurrency: 2, batch_size: 5]
-        even: [concurrency: 2, batch_size: 5],
-        odd: [concurrency: 2, batch_size: 5]
-      ],
-      partition_by: &partition/1
+        default: [concurrency: 2, batch_size: 5]
+        # even: [concurrency: 2, batch_size: 5],
+        # odd: [concurrency: 2, batch_size: 5]
+      ]
+      # ,
+      # partition_by: &partition/1
     ]
 
     {:ok, _broadway} = TelemetryBroadway.start_link(opts)
