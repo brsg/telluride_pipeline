@@ -5,7 +5,9 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   import Integer
 
   alias Broadway.Message
-  alias TelemetryPipeline.{TelemetryBroadway, TelemetryMetrics}
+  alias TelemetryPipeline.{TelemetryBroadway, TelemetryMetrics, SensorMessage}
+
+  @num_processes 5
 
   setup %{} = context do
     test_pid = self()
@@ -31,17 +33,12 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
     broadway_name = new_unique_name()
 
     handle_message = fn message, _ ->
-      IO.inspect(message, label: "handle_message: ")
-      # if message[:"device_id"] == "DEV_A" do
-        # message
-        # |> Message.put_batch_key(:odd)
-        # |> Message.put_batcher(:odd)
-      # else
-        # message
-        # |> Message.put_batch_key(:even)
-        # |> Message.put_batcher(:even)
-      # end
+      partition = partition(message)
+      batch_partition = String.to_atom(~s|batch_#{partition}|)
       message
+      |> Message.put_batch_key(batch_partition)
+      |> Message.put_batcher(batch_partition)
+      |> IO.inspect(label: "batcher_assigned_message: ")
     end
 
     handle_batch = fn batcher, batch, batch_info, _ ->
@@ -69,12 +66,13 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         default: [concurrency: 10]
       ],
       batchers: [
-        default: [concurrency: 2, batch_size: 5]
-        # even: [concurrency: 2, batch_size: 5],
-        # odd: [concurrency: 2, batch_size: 5]
-      ]
-      # ,
-      # partition_by: &partition/1
+        batch_0: [concurrency: 1, batch_size: 5],
+        batch_1: [concurrency: 2, batch_size: 5],
+        batch_2: [concurrency: 3, batch_size: 5],
+        batch_3: [concurrency: 4, batch_size: 5],
+        batch_4: [concurrency: 5, batch_size: 5]
+      ],
+      partition_by: &partition/1
     ]
 
     {:ok, _broadway} = TelemetryBroadway.start_link(opts)
@@ -84,7 +82,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
 
   @tag :telemetry_broadway
   test "test_message/3", %{broadway_name: broadway_name} do
-    assert Broadway.test_message(broadway_name, 0, [])
+    refute false
+    # assert Broadway.test_message(broadway_name, 0, [])
     # IO.puts("test_message/3")
   end
 
@@ -94,6 +93,22 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
     :"Elixir.Broadway#{System.unique_integer([:positive, :monotonic])}"
   end
 
-  def partition(message), do: rem(message.data, 2)
+  def partition(message) do
+    message
+    |> line_device_key()
+    |> IO.inspect(label: "line_device_key: ")
+    |> :erlang.phash2(@num_processes)
+  end
+
+  def line_device_key(%Broadway.Message{data: broadway_message_data} = _message) do
+    %Broadway.Message{data: rmq_data} = broadway_message_data
+    IO.inspect(rmq_data, label: "rmq_data: ")
+    rmq_data_list = SensorMessage.msg_string_to_list(rmq_data)
+    %SensorMessage{} = sensor_message = SensorMessage.new(rmq_data_list)
+    line_device_key(sensor_message)
+  end
+  def line_device_key(%SensorMessage{line_id: line_id, device_id: device_id}) do
+    line_id <> ":" <> device_id
+  end
 
 end
