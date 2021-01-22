@@ -1,0 +1,13 @@
+version: "3"
+
+# A good article, especially for volumes:
+# https://codeburst.io/get-started-with-rabbitmq-on-docker-4428d7f6e46b
+services:
+  bugs:
+    image: library/rabbitmq:3-management
+    hostname: telluride
+#    volumes:
+#      -
+    ports:
+      - 5672:5672
+      - 15672:15672
