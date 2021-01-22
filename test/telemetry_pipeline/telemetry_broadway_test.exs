@@ -7,8 +7,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   alias Broadway.Message
   alias TelemetryPipeline.{TelemetryBroadway, TelemetryMetrics, SensorMessage}
 
-  @num_processes 5
-
   setup %{} = context do
     test_pid = self()
 
@@ -30,10 +28,10 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         nil
       )
 
-    broadway_name = new_unique_name()
+    broadway_name = TelemetryBroadway.new_unique_name()
 
     handle_message = fn message, _ ->
-      partition = partition(message)
+      partition = TelemetryBroadway.partition(message)
       batch_partition = String.to_atom(~s|batch_#{partition}|)
       message
       |> Message.put_batch_key(batch_partition)
@@ -72,7 +70,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         batch_3: [concurrency: 4, batch_size: 5],
         batch_4: [concurrency: 5, batch_size: 5]
       ],
-      partition_by: &partition/1
+      partition_by: &TelemetryBroadway.partition/1
     ]
 
     {:ok, _broadway} = TelemetryBroadway.start_link(opts)
@@ -85,30 +83,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
     refute false
     # assert Broadway.test_message(broadway_name, 0, [])
     # IO.puts("test_message/3")
-  end
-
-  ##
-  ## Helpers
-  defp new_unique_name() do
-    :"Elixir.Broadway#{System.unique_integer([:positive, :monotonic])}"
-  end
-
-  def partition(message) do
-    message
-    |> line_device_key()
-    |> IO.inspect(label: "line_device_key: ")
-    |> :erlang.phash2(@num_processes)
-  end
-
-  def line_device_key(%Broadway.Message{data: broadway_message_data} = _message) do
-    %Broadway.Message{data: rmq_data} = broadway_message_data
-    IO.inspect(rmq_data, label: "rmq_data: ")
-    rmq_data_list = SensorMessage.msg_string_to_list(rmq_data)
-    %SensorMessage{} = sensor_message = SensorMessage.new(rmq_data_list)
-    line_device_key(sensor_message)
-  end
-  def line_device_key(%SensorMessage{line_id: line_id, device_id: device_id}) do
-    line_id <> ":" <> device_id
   end
 
 end
