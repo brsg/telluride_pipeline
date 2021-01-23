@@ -7,7 +7,9 @@ defmodule TelemetryPipeline.Application do
     IO.puts("TelemetryPipeline.Application.start/2")
     children = [
       # TelemetryPipeline.Messaging.BroadwayConfigConsumer,
-      TelemetryPipeline.Messaging.AMQPConnectionManager
+      TelemetryPipeline.Messaging.AMQPConnectionManager,
+      TelemetryPipeline.TelemetryBroadwayManager,
+      TelemetryPipeline.TelemetryBroadwayWorker
     ]
 
     opts = [strategy: :one_for_one, name: TelemetryPipeline.Supervisor]

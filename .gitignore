@@ -25,3 +25,5 @@ telemetry_pipeline-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+
+log/*

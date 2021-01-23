@@ -5,7 +5,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   import Integer
 
   alias Broadway.Message
-  alias TelemetryPipeline.{TelemetryBroadway, TelemetryMetrics, SensorMessage}
+  alias TelemetryPipeline.{TelemetryBroadway, TelemetryBroadwayManager, TelemetryMetrics, SensorMessage}
 
   setup %{} = context do
     test_pid = self()
@@ -28,10 +28,10 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         nil
       )
 
-    broadway_name = TelemetryBroadway.new_unique_name()
+    broadway_name = TelemetryBroadwayManager.new_unique_name()
 
     handle_message = fn message, _ ->
-      partition = TelemetryBroadway.partition(message)
+      partition = TelemetryBroadwayManager.partition(message)
       batch_partition = String.to_atom(~s|batch_#{partition}|)
       message
       |> Message.put_batch_key(batch_partition)
@@ -70,7 +70,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         batch_3: [concurrency: 4, batch_size: 5],
         batch_4: [concurrency: 5, batch_size: 5]
       ],
-      partition_by: &TelemetryBroadway.partition/1
+      partition_by: &TelemetryBroadwayManager.partition/1
     ]
 
     {:ok, _broadway} = TelemetryBroadway.start_link(opts)
