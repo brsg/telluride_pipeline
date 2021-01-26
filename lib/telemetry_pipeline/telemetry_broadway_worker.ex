@@ -25,7 +25,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       |> IO.inspect(label: "batcher_assigned_message: ")
     end
 
-    handle_batch =fn batcher, batch, batch_info, _ ->
+    handle_batch = fn batcher, batch, batch_info, _ ->
       IO.inspect(batch, label: "handle_batch: ")
       # send(test_pid, {:batch_handled, batcher, batch_info})
       batch
@@ -66,24 +66,19 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
           handle_message: (any, any -> any),
           test_pid: atom | pid | port | {atom, atom}
         }) :: any
-  def handle_message(_processor_atom, message, %{test_pid: test_pid, handle_message: message_handler} = context) do
-    # IO.inspect(processor_atom, label: "message processor_atom: ")
-    send( test_pid, {:message_handled, message.data})
-    # message
+  def handle_message(_processor_atom, message, %{test_pid: _test_pid, handle_message: message_handler} = context) do
     message_handler.(message, context)
   end
 
-  def handle_batch(batcher, messages, batch_info, %{test_pid: test_pid, handle_batch: batch_handler} = context) do
-    # IO.inspect(batcher, label: "batch batcher: ")
-    # IO.inspect(messages, label: "batch messages: ")
-    messages
-    |> Enum.into([], fn message -> message.data end)
-    |> Enum.into(~s||, fn value -> ~s|#{value}, | end)
-    |> IO.inspect(label: "Batch: ")
-
-    send(test_pid, {:batch_handle, batcher, messages})
-    # messages
+  def handle_batch(batcher, messages, batch_info, %{test_pid: _test_pid, handle_batch: batch_handler} = context) do
     batch_handler.(batcher, messages, batch_info, context)
+  end
+
+  def handle_failed(messages, _context) do
+    messages
+    |> Enum.each(fn message -> Logger.error("Failed message: #{inspect message}") end)
+
+    messages
   end
 
   ## Helpers

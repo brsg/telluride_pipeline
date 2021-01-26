@@ -1,5 +1,31 @@
 # TelemetryPipeline
 
+To run:
+
+Start RabbitMQ through one of sensor_simulator or telemetry_pipeline:
+
+```Elixir
+cd sensor_simulator/
+bin/rmq-up.sh 
+```
+
+or 
+
+```elixir
+cd telemetry_pipeline/
+docker-compose up -d
+```
+
+Start sensor_simulator according to sensor_simulator/README.md.
+
+Start telemetry_pipeline:
+
+```Elixir
+iex -S mix
+# From within iex:
+TelemetryPipeline.TelemetryBroadwayManager.start_or_replace_telemetry_pipeline/1
+```
+
 To run test: 
 
 ```elixir
