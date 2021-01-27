@@ -1,8 +1,16 @@
 # TelemetryPipeline
 
+## Usage of TelemetryPipeline.Ets.BroadwayConfig to manage Broadway configuration.
+
+```Elixir
+alias TelemetryPipeline.Ets.BroadwayConfig
+:ok = BroadwayConfig.upsert(key, value)   # key must be binary
+value = BroadwayConfig.find(key)            # key must be binary
+```
+
 ## Notes on how to stop
 
-How to convert a binary pid to a PID:
+How to stop a GenServer using a binary pid by converting it to a PID:
 
 ```Elixir
 Process.flag(:trap_exit, true)
