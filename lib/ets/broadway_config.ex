@@ -29,6 +29,7 @@ defmodule TelemetryPipeline.Ets.BroadwayConfig do
 
   ## Server Callbacks
 
+  @impl true
   def init(table_name) do
     IO.inspect(table_name, label: "init arg: ")
     table_pid = :ets.new(table_name, [:named_table, read_concurrency: true])
@@ -36,6 +37,7 @@ defmodule TelemetryPipeline.Ets.BroadwayConfig do
     {:ok, table_name}
   end
 
+  @impl true
   def handle_cast({:upsert, {key, value}}, table_name) do
     case :ets.insert(table_name, {key, value}) do
       value ->
@@ -44,6 +46,7 @@ defmodule TelemetryPipeline.Ets.BroadwayConfig do
     end
   end
 
+  @impl true
   def handle_call({:find, key}, _, table_name) when is_binary(key) do
     case lookup(table_name, key) do
       {:ok, value} -> {:reply, value, table_name}
