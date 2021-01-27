@@ -1,5 +1,17 @@
 # TelemetryPipeline
 
+## Notes on how to stop
+
+How to convert a binary pid to a PID:
+
+```Elixir
+Process.flag(:trap_exit, true)
+a_pid = :erlang.list_to_pid(String.to_charlist("<0.316.0>"))
+GenServer.stop(a_pid, :normal)
+```
+
+## How to Run
+
 To run:
 
 Start RabbitMQ through one of sensor_simulator or telemetry_pipeline:
