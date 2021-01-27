@@ -22,11 +22,11 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       message
       |> Message.put_batch_key(batch_partition)
       |> Message.put_batcher(batch_partition)
-      |> IO.inspect(label: "batcher_assigned_message: ")
+      # |> IO.inspect(label: "batcher_assigned_message: ")
     end
 
-    handle_batch = fn batcher, batch, batch_info, _ ->
-      IO.inspect(batch, label: "handle_batch: ")
+    handle_batch = fn _batcher, batch, _batch_info, _ ->
+      # IO.inspect(batch, label: "handle_batch: ")
       # send(test_pid, {:batch_handled, batcher, batch_info})
       batch
     end
@@ -42,8 +42,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       },
       producer: [
         module: {BroadwayRabbitMQ.Producer, [queue: "events"]},
-        transformer: {__MODULE__, :transform,
-        []}
+        transformer: {__MODULE__, :transform, []},
+        rate_limiting: [allowed_messages: 10, interval: 1000]
       ],
       processors: [default: [concurrency: 10]],
       batchers: [
