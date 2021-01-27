@@ -5,8 +5,9 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
   alias Broadway.Message
   alias TelemetryPipeline.SensorMessage
+  alias TelemetryPipeline.Ets.BroadwayConfig
 
-  @num_processes 5
+  @num_processes 3
 
   ################################################################################
   # Client interface
@@ -32,6 +33,16 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     end
 
     test_pid = self()
+    rate_limit_allowed = BroadwayConfig.find("rate_limit_allowed") || 10
+    rate_limit_interval = BroadwayConfig.find("rate_limit_interval") || 1_000
+    producer_concurrency = BroadwayConfig.find("producer_concurrency") || 1
+    processor_concurrency = BroadwayConfig.find("processor_concurrency") || 4
+    batcher_1_concurrency = BroadwayConfig.find("batcher_1_concurrency") || 1
+    batcher_2_concurrency = BroadwayConfig.find("batcher_2_concurrency") || 2
+    batcher_3_concurrency = BroadwayConfig.find("batcher_3_concurrency") || 2
+    batcher_1_batch_size = BroadwayConfig.find("batcher_1_batch_size") || 3
+    batcher_2_batch_size = BroadwayConfig.find("batcher_2_batch_size") || 3
+    batcher_3_batch_size = BroadwayConfig.find("batcher_3_batch_size") || 3
 
     Broadway.start_link(__MODULE__,
       name: Broadway1,
@@ -43,15 +54,14 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       producer: [
         module: {BroadwayRabbitMQ.Producer, [queue: "events"]},
         transformer: {__MODULE__, :transform, []},
-        rate_limiting: [allowed_messages: 10, interval: 1000]
+        rate_limiting: [allowed_messages: rate_limit_allowed, interval: rate_limit_interval],
+        concurrency: producer_concurrency
       ],
-      processors: [default: [concurrency: 10]],
+      processors: [default: [concurrency: processor_concurrency]],
       batchers: [
-        batch_0: [concurrency: 1, batch_size: 5],
-        batch_1: [concurrency: 2, batch_size: 5],
-        batch_2: [concurrency: 3, batch_size: 5],
-        batch_3: [concurrency: 4, batch_size: 5],
-        batch_4: [concurrency: 5, batch_size: 5]
+        batch_1: [concurrency: batcher_1_concurrency, batch_size: batcher_1_batch_size],
+        batch_2: [concurrency: batcher_2_concurrency, batch_size: batcher_2_batch_size],
+        batch_3: [concurrency: batcher_3_concurrency, batch_size: batcher_3_batch_size],
       ],
       partition_by: &__MODULE__.partition/1
     )
