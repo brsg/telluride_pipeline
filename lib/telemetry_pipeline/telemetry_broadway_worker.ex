@@ -52,7 +52,11 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
         origin_pid: origin_pid
       },
       producer: [
-        module: {BroadwayRabbitMQ.Producer, [queue: "events"]},
+        module: {BroadwayRabbitMQ.Producer, [
+          queue: "events",
+          on_success: :ack,
+          on_failure: :reject
+        ]},
         transformer: {__MODULE__, :transform, []},
         rate_limiting: [allowed_messages: rate_limit_allowed, interval: rate_limit_interval],
         concurrency: producer_concurrency
