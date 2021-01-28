@@ -8,7 +8,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
   alias TelemetryPipeline.{TelemetryBroadway, TelemetryBroadwayManager, TelemetryMetrics, SensorMessage}
 
   setup %{} = context do
-    test_pid = self()
+    origin_pid = self()
 
     :ok =
       :telemetry.attach_many(
@@ -41,12 +41,12 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
 
     handle_batch = fn batcher, batch, batch_info, _ ->
       IO.inspect(batch, label: "handle_batch: ")
-      # send(test_pid, {:batch_handled, batcher, batch_info})
+      # send(origin_pid, {:batch_handled, batcher, batch_info})
       batch
     end
 
     context = %{
-      test_pid: test_pid,
+      origin_pid: origin_pid,
       handle_message: handle_message,
       handle_batch: handle_batch
     }

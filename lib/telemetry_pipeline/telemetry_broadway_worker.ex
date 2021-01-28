@@ -28,28 +28,28 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
     handle_batch = fn _batcher, batch, _batch_info, _ ->
       # IO.inspect(batch, label: "handle_batch: ")
-      # send(test_pid, {:batch_handled, batcher, batch_info})
+      # send(origin_pid, {:batch_handled, batcher, batch_info})
       batch
     end
 
-    test_pid = self()
+    origin_pid = self()
     rate_limit_allowed = BroadwayConfig.find("rate_limit_allowed") || 10
     rate_limit_interval = BroadwayConfig.find("rate_limit_interval") || 1_000
     producer_concurrency = BroadwayConfig.find("producer_concurrency") || 1
     processor_concurrency = BroadwayConfig.find("processor_concurrency") || 4
-    batcher_1_concurrency = BroadwayConfig.find("batcher_1_concurrency") || 1
+    batcher_0_concurrency = BroadwayConfig.find("batcher_0_concurrency") || 1
+    batcher_1_concurrency = BroadwayConfig.find("batcher_1_concurrency") || 2
     batcher_2_concurrency = BroadwayConfig.find("batcher_2_concurrency") || 2
-    batcher_3_concurrency = BroadwayConfig.find("batcher_3_concurrency") || 2
+    batcher_0_batch_size = BroadwayConfig.find("batcher_0_batch_size") || 3
     batcher_1_batch_size = BroadwayConfig.find("batcher_1_batch_size") || 3
     batcher_2_batch_size = BroadwayConfig.find("batcher_2_batch_size") || 3
-    batcher_3_batch_size = BroadwayConfig.find("batcher_3_batch_size") || 3
 
     Broadway.start_link(__MODULE__,
       name: Broadway1,
       context: %{
         handle_batch: handle_batch,
         handle_message: handle_message,
-        test_pid: test_pid
+        origin_pid: origin_pid
       },
       producer: [
         module: {BroadwayRabbitMQ.Producer, [queue: "events"]},
@@ -59,9 +59,9 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       ],
       processors: [default: [concurrency: processor_concurrency]],
       batchers: [
+        batch_0: [concurrency: batcher_0_concurrency, batch_size: batcher_0_batch_size],
         batch_1: [concurrency: batcher_1_concurrency, batch_size: batcher_1_batch_size],
         batch_2: [concurrency: batcher_2_concurrency, batch_size: batcher_2_batch_size],
-        batch_3: [concurrency: batcher_3_concurrency, batch_size: batcher_3_batch_size],
       ],
       partition_by: &__MODULE__.partition/1
     )
@@ -74,13 +74,13 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
    @spec handle_message(any, atom | %{data: any}, %{
           handle_message: (any, any -> any),
-          test_pid: atom | pid | port | {atom, atom}
+          origin_pid: atom | pid | port | {atom, atom}
         }) :: any
-  def handle_message(_processor_atom, message, %{test_pid: _test_pid, handle_message: message_handler} = context) do
+  def handle_message(_processor_atom, message, %{origin_pid: _origin_pid, handle_message: message_handler} = context) do
     message_handler.(message, context)
   end
 
-  def handle_batch(batcher, messages, batch_info, %{test_pid: _test_pid, handle_batch: batch_handler} = context) do
+  def handle_batch(batcher, messages, batch_info, %{origin_pid: _origin_pid, handle_batch: batch_handler} = context) do
     batch_handler.(batcher, messages, batch_info, context)
   end
 
@@ -108,6 +108,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     |> line_device_key()
     |> IO.inspect(label: "line_device_key: ")
     |> :erlang.phash2(@num_processes)
+    |> IO.inspect(label: "partition: ")
   end
 
   def line_device_key(%Broadway.Message{data: broadway_message_data} = _message) do
