@@ -155,7 +155,11 @@ defmodule TelemetryPipeline.DataContainer.BroadwayConfig do
 
   @impl true
   def handle_call({:find, key}, _, config_map) when is_atom(key) do
-    value = Map.get(config_map, key)
+    value =
+      case Map.get(config_map, key) do
+        nil -> Application.get_env(:telemetry_pipeline, key)
+        value -> value
+      end
     {:reply, value, config_map}
   end
 
