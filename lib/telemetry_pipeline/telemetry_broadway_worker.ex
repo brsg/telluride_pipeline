@@ -7,7 +7,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   alias TelemetryPipeline.SensorMessage
   alias TelemetryPipeline.DataContainer.BroadwayConfig
 
-  @num_processes 3
+  @num_processes 2
 
   ################################################################################
   # Client interface
@@ -18,8 +18,13 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     # IO.inspect(opts, label: "worker opts: ")
     # Broadway.start_link(__MODULE__, opts)
     handle_message = fn message, _ ->
-      partition = partition(message)
-      batch_partition = String.to_atom(~s|batch_#{partition}|)
+      # partition = partition(message)
+      batch_partition =
+        case partition(message) do
+          0 -> :line_batcher
+          _ -> :device_batcher
+        end
+        # String.to_atom(~s|batch_#{partition}|)
       message
       |> Message.put_batch_key(batch_partition)
       |> Message.put_batcher(batch_partition)
@@ -32,16 +37,14 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     end
 
     origin_pid = self()
-    rate_limit_allowed = BroadwayConfig.find("rate_limit_allowed") || 10
-    rate_limit_interval = BroadwayConfig.find("rate_limit_interval") || 1_000
-    producer_concurrency = BroadwayConfig.find("producer_concurrency") || 1
-    processor_concurrency = BroadwayConfig.find("processor_concurrency") || 4
-    batcher_0_concurrency = BroadwayConfig.find("batcher_0_concurrency") || 1
-    batcher_1_concurrency = BroadwayConfig.find("batcher_1_concurrency") || 2
-    batcher_2_concurrency = BroadwayConfig.find("batcher_2_concurrency") || 2
-    batcher_0_batch_size = BroadwayConfig.find("batcher_0_batch_size") || 3
-    batcher_1_batch_size = BroadwayConfig.find("batcher_1_batch_size") || 3
-    batcher_2_batch_size = BroadwayConfig.find("batcher_2_batch_size") || 3
+    device_batcher_batch_size = BroadwayConfig.device_batcher_batch_size() || 3
+    device_batcher_concurrency = BroadwayConfig.device_batcher_concurrency() || 1
+    line_batcher_batch_size = BroadwayConfig.line_batcher_batch_size() || 3
+    line_batcher_concurrency = BroadwayConfig.line_batcher_concurrency() || 1
+    processor_concurrency = BroadwayConfig.processor_concurrency() || 4
+    producer_concurrency = BroadwayConfig.producer_concurrency() || 1
+    rate_limit_allowed = BroadwayConfig.rate_limit_allowed() || 10
+    rate_limit_interval = BroadwayConfig.rate_limit_interval() || 1_000
 
     Broadway.start_link(__MODULE__,
       name: Broadway1,
@@ -62,9 +65,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       ],
       processors: [default: [concurrency: processor_concurrency]],
       batchers: [
-        batch_0: [concurrency: batcher_0_concurrency, batch_size: batcher_0_batch_size],
-        batch_1: [concurrency: batcher_1_concurrency, batch_size: batcher_1_batch_size],
-        batch_2: [concurrency: batcher_2_concurrency, batch_size: batcher_2_batch_size],
+        line_batcher: [concurrency: line_batcher_concurrency, batch_size: line_batcher_batch_size],
+        device_batcher: [concurrency: device_batcher_concurrency, batch_size: device_batcher_batch_size]
       ],
       partition_by: &__MODULE__.partition/1
     )
