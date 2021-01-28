@@ -27,9 +27,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     end
 
     handle_batch = fn _batcher, batch, _batch_info, _ ->
-      # IO.inspect(batch, label: "handle_batch: ")
-      # send(origin_pid, {:batch_handled, batcher, batch_info})
       batch
+      |> Enum.into([], fn %Message{} = msg -> msg.data end)
     end
 
     origin_pid = self()
