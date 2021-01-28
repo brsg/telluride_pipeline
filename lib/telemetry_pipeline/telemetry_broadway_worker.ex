@@ -5,7 +5,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
   alias Broadway.Message
   alias TelemetryPipeline.SensorMessage
-  alias TelemetryPipeline.Ets.BroadwayConfig
+  alias TelemetryPipeline.DataContainer.BroadwayConfig
 
   @num_processes 3
 

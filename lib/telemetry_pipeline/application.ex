@@ -7,7 +7,7 @@ defmodule TelemetryPipeline.Application do
     IO.puts("TelemetryPipeline.Application.start/2")
     children = [
       # TelemetryPipeline.Messaging.BroadwayConfigConsumer,
-      TelemetryPipeline.Ets.BroadwayConfig,
+      TelemetryPipeline.DataContainer.BroadwayConfig,
       TelemetryPipeline.Messaging.AMQPConnectionManager,
       TelemetryPipeline.TelemetryBroadwayManager,
       TelemetryPipeline.TelemetryBroadwayWorker

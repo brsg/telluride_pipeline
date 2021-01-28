@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Ets.BroadwayConfig do
+defmodule TelemetryPipeline.DataContainer.BroadwayConfig do
   @moduledoc """
   BroadwayConfig is a data container that keeps the variable configuration
   values for a Broadway behaviour.
