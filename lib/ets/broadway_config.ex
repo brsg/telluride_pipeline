@@ -1,19 +1,23 @@
 defmodule TelemetryPipeline.Ets.BroadwayConfig do
+  @moduledoc """
+  BroadwayConfig is a data container that keeps the variable configuration
+  values for a Broadway behaviour.
+  """
   use GenServer
 
   ## Client API
 
   @doc """
-  A singleton server providing global access to the ETS table with
+  A singleton server providing global access to the
   Broadway configuration information.
   """
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, :broadway_config, name: __MODULE__)
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   @doc """
-  A binary key with any value is inserted to ETS, replacing any existing
-  key-value pair of the same key.
+  A binary key with any value is to be set in this data container,
+  replacing any existing key-value pair of the same key.
   """
   def upsert(key, value) when is_binary(key) do
     GenServer.cast(__MODULE__, {:upsert, {key, value}})
@@ -21,7 +25,7 @@ defmodule TelemetryPipeline.Ets.BroadwayConfig do
 
   @doc """
   Return the value for the provided binary key or nil if it does not yet exist
-  in this ETS table.
+  in this data container.
   """
   def find(key) when is_binary(key) do
     GenServer.call(__MODULE__, {:find, key})
@@ -30,37 +34,21 @@ defmodule TelemetryPipeline.Ets.BroadwayConfig do
   ## Server Callbacks
 
   @impl true
-  def init(table_name) do
-    IO.inspect(table_name, label: "init arg: ")
-    table_pid = :ets.new(table_name, [:named_table, read_concurrency: true])
-    IO.inspect(table_pid, label: "table_pid: ")
-    {:ok, table_name}
+  def init(_args) do
+    ## Initialized with an empty Map to serve as the basis for this data container.
+    {:ok, %{}}
   end
 
   @impl true
-  def handle_cast({:upsert, {key, value}}, table_name) do
-    case :ets.insert(table_name, {key, value}) do
-      value ->
-        IO.inspect(value, label: "upsert result: ")
-        {:noreply, table_name}
-    end
+  def handle_cast({:upsert, {key, value}}, %{} = config_map) do
+    config_map = Map.put(config_map, key, value)
+    {:noreply, config_map}
   end
 
   @impl true
-  def handle_call({:find, key}, _, table_name) when is_binary(key) do
-    case lookup(table_name, key) do
-      {:ok, value} -> {:reply, value, table_name}
-      :error -> {:reply, nil, table_name}
-    end
-  end
-
-  ## Helper
-
-  def lookup(table, name) do
-    case :ets.lookup(table, name) do
-      [{^name, value}] -> {:ok, value}
-      [] -> :error
-    end
+  def handle_call({:find, key}, _, config_map) when is_binary(key) do
+    value = Map.get(config_map, key)
+    {:reply, value, config_map}
   end
 
  end
