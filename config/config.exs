@@ -1,7 +1,9 @@
 use Mix.Config
 
 ##
-## Assign default Broadway startup configuration variables
+## Assign default Broadway startup configuration variables.
+## These atoms are expected to be the same as found in
+## TelemetryPipeline.DataContainer.BroadwayConfig.
 ##
 config :telemetry_pipeline,
   device_batcher_batch_size: 3,
