@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
+defmodule TelemetryPipeline.Messaging.TelemetryEventConsumer do
   use GenServer
   use AMQP
 
@@ -14,7 +14,7 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
 
   def start_link do
-    IO.puts("TelemetryPipeline.Messaging.BroadwayConfigConsumer.start_link")
+    IO.puts("TelemetryPipeline.Messaging.TelemetryEventConsumer.start_link")
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 
@@ -26,7 +26,7 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   end
 
   def channel_available(chan) do
-    IO.puts("BroadwayConfigConsumer.channel_available called with #{inspect chan}")
+    IO.puts("TelemetryEventConsumer.channel_available called with #{inspect chan}")
     GenServer.cast(__MODULE__, {:channel_available, chan})
   end
 
@@ -35,7 +35,7 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
 
   def init(_) do
-    IO.puts("BroadwayConfigConsumer.init/1")
+    IO.puts("TelemetryEventConsumer.init/1")
     AMQPConnectionManager.request_channel(__MODULE__)
     {:ok, nil}
   end
@@ -69,10 +69,10 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
 
   defp setup_queue(channel) do
-    IO.puts("BroadwayConfigConsumer.setup_queue(#{inspect channel})")
+    IO.puts("TelemetryEventConsumer.setup_queue(#{inspect channel})")
 
     # Declare the error queue
-    IO.puts("BroadwayConfigConsumer.setup_queue - declaring queue '#{@error_queue}'")
+    IO.puts("TelemetryEventConsumer.setup_queue - declaring queue '#{@error_queue}'")
     {:ok, _} = AMQP.Queue.declare(
       channel,
       @error_queue,
@@ -82,7 +82,7 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
     # Declare the message queue
     # Messages that cannot be delivered to any consumer in the
     # message queue will be routed to the error queue
-    IO.puts("BroadwayConfigConsumer.setup_queue - declaring queue '#{@message_queue}'")
+    IO.puts("TelemetryEventConsumer.setup_queue - declaring queue '#{@message_queue}'")
     {:ok, _} = AMQP.Queue.declare(
       channel,
       @message_queue,
@@ -94,18 +94,18 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
     )
 
     # Declare an exchange of type direct
-    IO.puts("BroadwayConfigConsumer.setup_queue - declaring exchange '#{@exchange}'")
+    IO.puts("TelemetryEventConsumer.setup_queue - declaring exchange '#{@exchange}'")
     :ok = AMQP.Exchange.direct(channel, @exchange, durable: true)
 
     # Bind the main queue to the exchange
-    IO.puts("BroadwayConfigConsumer.setup_queue - binding queue '#{@message_queue}' to exchange '#{@exchange}'")
+    IO.puts("TelemetryEventConsumer.setup_queue - binding queue '#{@message_queue}' to exchange '#{@exchange}'")
     :ok = AMQP.Queue.bind(channel, @message_queue, @exchange, routing_key: @routing_key)
   end
 
   defp consume(channel, tag, _redelivered, payload) do
     case JSON.decode(payload) do
       {:ok, event_info} ->
-        IO.puts("BroadwayConfigConsumer.consume received #{inspect event_info}")
+        IO.puts("TelemetryEventConsumer.consume received #{inspect event_info}")
         AMQP.Basic.ack(channel, tag)
       {:error, changeset} ->
         Basic.reject channel, tag, requeue: false
