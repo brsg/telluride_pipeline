@@ -7,6 +7,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   alias TelemetryPipeline.SensorMessage
   alias TelemetryPipeline.DataContainer.{BroadwayConfig, SensorTracker}
   alias TelemetryPipeline.Data.SensorAggregate
+  alias TelemetryPipeline.Messaging.SensorAggregateProducer
 
   @num_processes 2
 
@@ -125,7 +126,11 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       end)
       |> IO.inspect(label: "sensor_aggregate: ")
 
+    ## Save to in-memory data container
     SensorTracker.upsert(sensor_aggregate)
+
+    ## Publish to RMQ
+    SensorAggregateProducer.publish(sensor_aggregate)
   end
 
   def transform(event, _opts) do
