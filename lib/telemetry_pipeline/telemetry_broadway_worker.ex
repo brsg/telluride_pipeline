@@ -102,21 +102,21 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
   def partition(message) do
     message
-    |> line_device_key()
-    |> IO.inspect(label: "line_device_key: ")
+    |> line_device_sensor_key()
+    |> IO.inspect(label: "line_device_sensor_key: ")
     |> :erlang.phash2(@num_processes)
     |> IO.inspect(label: "partition: ")
   end
 
-  def line_device_key(%Broadway.Message{data: broadway_message_data} = _message) do
+  def line_device_sensor_key(%Broadway.Message{data: broadway_message_data} = _message) do
     %Broadway.Message{data: rmq_data} = broadway_message_data
     IO.inspect(rmq_data, label: "rmq_data: ")
     rmq_data_list = SensorMessage.msg_string_to_list(rmq_data)
     %SensorMessage{} = sensor_message = SensorMessage.new(rmq_data_list)
-    line_device_key(sensor_message)
+    line_device_sensor_key(sensor_message)
   end
-  def line_device_key(%SensorMessage{line_id: line_id, device_id: device_id}) do
-    line_id <> ":" <> device_id
+  def line_device_sensor_key(%SensorMessage{line_id: line_id, device_id: device_id, sensor_id: sensor_id}) do
+    line_id <> ":" <> device_id <> ":" <> sensor_id
   end
 
   def terminate(_, _) do
