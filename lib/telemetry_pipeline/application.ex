@@ -8,6 +8,7 @@ defmodule TelemetryPipeline.Application do
     children = [
       # TelemetryPipeline.Messaging.BroadwayConfigConsumer,
       TelemetryPipeline.DataContainer.BroadwayConfig,
+      TelemetryPipeline.DataContainer.SensorTracker,
       TelemetryPipeline.Messaging.AMQPConnectionManager,
       TelemetryPipeline.TelemetryBroadwayManager,
       TelemetryPipeline.TelemetryBroadwayWorker
