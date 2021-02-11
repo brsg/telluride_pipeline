@@ -5,7 +5,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
   alias Broadway.Message
   alias TelemetryPipeline.SensorMessage
-  alias TelemetryPipeline.DataContainer.BroadwayConfig
+  alias TelemetryPipeline.DataContainer.{BroadwayConfig, SensorTracker}
+  alias TelemetryPipeline.Data.SensorAggregate
 
   @num_processes 2
 
@@ -28,20 +29,20 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       |> Message.put_batcher(batch_partition)
     end
 
-    handle_batch = fn _batcher, batch, _batch_info, _ ->
-      batch
-      |> IO.inspect(label: "batch: ")
-      |> Enum.into([], fn %Message{} = msg ->
-        msg.data
-      end)
-    end
+    # handle_batch = fn _batcher, batch, _batch_info, _ ->
+      # batch
+      # |> IO.inspect(label: "batch: ")
+      # |> Enum.into([], fn %Message{} = msg ->
+        # msg.data
+      # end)
+    # end
 
     origin_pid = self()
 
     Broadway.start_link(__MODULE__,
       name: Broadway1,
       context: %{
-        handle_batch: handle_batch,
+        # handle_batch: handle_batch,
         handle_message: handle_message,
         origin_pid: origin_pid
       },
@@ -73,10 +74,22 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     message_handler.(message, context)
   end
 
-  def handle_batch(batcher, messages, batch_info, %{origin_pid: _origin_pid, handle_batch: batch_handler} = context) do
-    batch_handler.(batcher, messages, batch_info, context)
-    # messages
-    # |> Enum.into([], fn %Message{} = message -> message.data end)
+  def handle_batch(:sensor_batcher_one, messages, _batch_info, %{origin_pid: _origin_pid} = _context) do
+    # IO.puts("\nsensor_batch_one\n")
+
+    track_sensor_aggregate(messages)
+
+    messages
+    |> Enum.into([], fn %Message{} = message -> message.data end)
+  end
+
+  def handle_batch(:sensor_batcher_two, messages, _batch_info, %{origin_pid: _origin_pid} = _context) do
+    # IO.puts("\nsensor_batch_two\n")
+
+    track_sensor_aggregate(messages)
+
+    messages
+    |> Enum.into([], fn %Message{} = message -> message.data end)
   end
 
   def handle_failed(messages, _context) do
@@ -87,6 +100,34 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   end
 
   ## Helpers
+  defp track_sensor_aggregate(messages) do
+    messages
+    |> Enum.into([], fn %Message{} = msg -> sensor_message(msg) end)
+    |> Enum.group_by(fn %SensorMessage{} = msg -> line_device_sensor_key(msg) end)
+    # |> IO.inspect(label: "grouped_batch: ")
+    |> compute_by_sensor()
+  end
+
+  defp compute_by_sensor(%{} = sensor_map) do
+    Map.keys(sensor_map)
+    |> Enum.each(fn key ->
+      aggregate_sensor(key, Map.get(sensor_map, key))
+    end)
+    :ok
+  end
+
+  defp aggregate_sensor(key, sensor_messages) do
+    sensor_aggregate =
+      sensor_messages
+      |> Enum.reduce(nil, fn %SensorMessage{} = s_msg, _accum_agg ->
+        sensor_agg = SensorTracker.find(key)
+        SensorAggregate.combine(sensor_agg, s_msg)
+      end)
+      |> IO.inspect(label: "sensor_aggregate: ")
+
+    SensorTracker.upsert(sensor_aggregate)
+  end
+
   def transform(event, _opts) do
     %Message{
       data: event,
@@ -101,19 +142,24 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   def partition(message) do
     message
     |> line_device_sensor_key()
-    |> IO.inspect(label: "line_device_sensor_key: ")
+    # |> IO.inspect(label: "line_device_sensor_key: ")
     |> :erlang.phash2(@num_processes)
   end
 
-  def line_device_sensor_key(%Broadway.Message{data: broadway_message_data} = _message) do
+  def sensor_message(%Broadway.Message{data: broadway_message_data}) do
     %Broadway.Message{data: rmq_data} = broadway_message_data
-    IO.inspect(rmq_data, label: "rmq_data: ")
+    # IO.inspect(rmq_data, label: "rmq_data: ")
     rmq_data_list = SensorMessage.msg_string_to_list(rmq_data)
-    %SensorMessage{} = sensor_message = SensorMessage.new(rmq_data_list)
+    SensorMessage.new(rmq_data_list)
+  end
+
+  def line_device_sensor_key(%Broadway.Message{} = message) do
+    %SensorMessage{} = sensor_message = sensor_message(message)
     line_device_sensor_key(sensor_message)
   end
-  def line_device_sensor_key(%SensorMessage{line_id: line_id, device_id: device_id, sensor_id: sensor_id}) do
-    line_id <> ":" <> device_id <> ":" <> sensor_id
+  def line_device_sensor_key(%SensorMessage{line_id: _line_id, device_id: _device_id, sensor_id: sensor_id}) do
+    # line_id <> ":" <> device_id <> ":" <> sensor_id
+    sensor_id
   end
 
   def terminate(_, _) do
