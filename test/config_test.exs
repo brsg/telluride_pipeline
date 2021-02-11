@@ -4,10 +4,10 @@ defmodule TelemetryPipeline.ConfigTest do
   describe "expected environment" do
     @tag :env_test
     test "exist" do
-      assert Application.get_env(:telemetry_pipeline, :device_batcher_batch_size)
-      assert Application.get_env(:telemetry_pipeline, :device_batcher_concurrency)
-      assert Application.get_env(:telemetry_pipeline, :line_batcher_batch_size)
-      assert Application.get_env(:telemetry_pipeline, :line_batcher_concurrency)
+      assert Application.get_env(:telemetry_pipeline, :sensor_batcher_two_batch_size)
+      assert Application.get_env(:telemetry_pipeline, :sensor_batcher_two_concurrency)
+      assert Application.get_env(:telemetry_pipeline, :sensor_batcher_one_batch_size)
+      assert Application.get_env(:telemetry_pipeline, :sensor_batcher_one_concurrency)
       assert Application.get_env(:telemetry_pipeline, :processor_concurrency)
       assert Application.get_env(:telemetry_pipeline, :producer_concurrency)
       assert Application.get_env(:telemetry_pipeline, :rate_limit_allowed)

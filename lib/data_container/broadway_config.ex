@@ -18,60 +18,60 @@ defmodule TelemetryPipeline.DataContainer.BroadwayConfig do
   ## Client API
 
   @doc """
-  Assigns an integer value to device_batcher_concurrency variable on a
+  Assigns an integer value to sensor_batcher_two_concurrency variable on a
   Broadway startup configuration.
   """
-  def assign_device_batcher_concurrency(value) when is_integer(value) do
-    upsert(:device_batcher_concurrency, value)
+  def assign_sensor_batcher_two_concurrency(value) when is_integer(value) do
+    upsert(:sensor_batcher_two_concurrency, value)
   end
 
   @doc """
-  Return the value for device_batcher_concurrency or nil if it does not yet exist
+  Return the value for sensor_batcher_two_concurrency or nil if it does not yet exist
   in this data container.
   """
-  def device_batcher_concurrency(), do: find(:device_batcher_concurrency)
+  def sensor_batcher_two_concurrency(), do: find(:sensor_batcher_two_concurrency)
 
   @doc """
-  Assigns an integer value to device_batcher_batch_size variable on a
+  Assigns an integer value to sensor_batcher_two_batch_size variable on a
   Broadway startup configuration.
   """
-  def assign_device_batcher_batch_size(value) when is_integer(value) do
-    upsert(:device_batcher_batch_size, value)
+  def assign_sensor_batcher_two_batch_size(value) when is_integer(value) do
+    upsert(:sensor_batcher_two_batch_size, value)
   end
 
   @doc """
-  Return the value for device_batcher_batch_size or nil if it does not yet exist
+  Return the value for sensor_batcher_two_batch_size or nil if it does not yet exist
   in this data container.
   """
-  def device_batcher_batch_size(), do: find(:device_batcher_batch_size)
+  def sensor_batcher_two_batch_size(), do: find(:sensor_batcher_two_batch_size)
 
   @doc """
-  Assigns an integer value to line_batcher_batch_size variable on a
+  Assigns an integer value to sensor_batcher_one_batch_size variable on a
   Broadway startup configuration.
   """
-  def assign_line_batcher_batch_size(value) when is_integer(value) do
-    upsert(:line_batcher_batch_size, value)
+  def assign_sensor_batcher_one_batch_size(value) when is_integer(value) do
+    upsert(:sensor_batcher_one_batch_size, value)
   end
 
   @doc """
-  Return the value for line_batcher_batch_size or nil if it does not yet exist
+  Return the value for sensor_batcher_one_batch_size or nil if it does not yet exist
   in this data container.
   """
-  def line_batcher_batch_size(), do: find(:line_batcher_batch_size)
+  def sensor_batcher_one_batch_size(), do: find(:sensor_batcher_one_batch_size)
 
   @doc """
-  Assigns an integer value to line_batcher_concurrency variable on a
+  Assigns an integer value to sensor_batcher_one_concurrency variable on a
   Broadway startup configuration.
   """
-  def assign_line_batcher_concurrency(value) when is_integer(value) do
-    upsert(:line_batcher_concurrency, value)
+  def assign_sensor_batcher_one_concurrency(value) when is_integer(value) do
+    upsert(:sensor_batcher_one_concurrency, value)
   end
 
   @doc """
-  Return the value for line_batcher_concurrency or nil if it does not yet exist
+  Return the value for sensor_batcher_one_concurrency or nil if it does not yet exist
   in this data container.
   """
-  def line_batcher_concurrency(), do: find(:line_batcher_concurrency)
+  def sensor_batcher_one_concurrency(), do: find(:sensor_batcher_one_concurrency)
 
   @doc """
   Assigns an integer value to processor_concurrency variable on a

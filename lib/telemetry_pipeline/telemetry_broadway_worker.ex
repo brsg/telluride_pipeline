@@ -15,25 +15,25 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
   def start_link(opts) do
     IO.puts("\nTelemetryPipeline.TelemetryBroadwayWorker.start_link() w/ opts #{inspect opts} \n")
-    # IO.inspect(opts, label: "worker opts: ")
-    # Broadway.start_link(__MODULE__, opts)
+
     handle_message = fn message, _ ->
-      # partition = partition(message)
       batch_partition =
         case partition(message) do
-          0 -> :line_batcher
-          _ -> :device_batcher
+          0 -> :sensor_batcher_one
+          1 -> :sensor_batcher_two
+          unexpected -> Logger.error("Unexpected batch partition #{inspect unexpected}")
         end
-        # String.to_atom(~s|batch_#{partition}|)
       message
       |> Message.put_batch_key(batch_partition)
       |> Message.put_batcher(batch_partition)
-      # |> IO.inspect(label: "batcher_assigned_message: ")
     end
 
     handle_batch = fn _batcher, batch, _batch_info, _ ->
       batch
-      |> Enum.into([], fn %Message{} = msg -> msg.data end)
+      |> IO.inspect(label: "batch: ")
+      |> Enum.into([], fn %Message{} = msg ->
+        msg.data
+      end)
     end
 
     origin_pid = self()
@@ -57,8 +57,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       ],
       processors: [default: [concurrency: BroadwayConfig.processor_concurrency()]],
       batchers: [
-        line_batcher: [concurrency: BroadwayConfig.line_batcher_concurrency(), batch_size: BroadwayConfig.line_batcher_batch_size()],
-        device_batcher: [concurrency: BroadwayConfig.device_batcher_concurrency(), batch_size: BroadwayConfig.device_batcher_batch_size()]
+        sensor_batcher_one: [concurrency: BroadwayConfig.sensor_batcher_one_concurrency(), batch_size: BroadwayConfig.sensor_batcher_one_batch_size()],
+        sensor_batcher_two: [concurrency: BroadwayConfig.sensor_batcher_two_concurrency(), batch_size: BroadwayConfig.sensor_batcher_two_batch_size()]
       ],
       partition_by: &__MODULE__.partition/1
     )
@@ -69,16 +69,14 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   # Server callbacks
   ################################################################################
 
-   @spec handle_message(any, atom | %{data: any}, %{
-          handle_message: (any, any -> any),
-          origin_pid: atom | pid | port | {atom, atom}
-        }) :: any
   def handle_message(_processor_atom, message, %{origin_pid: _origin_pid, handle_message: message_handler} = context) do
     message_handler.(message, context)
   end
 
   def handle_batch(batcher, messages, batch_info, %{origin_pid: _origin_pid, handle_batch: batch_handler} = context) do
     batch_handler.(batcher, messages, batch_info, context)
+    # messages
+    # |> Enum.into([], fn %Message{} = message -> message.data end)
   end
 
   def handle_failed(messages, _context) do
@@ -105,7 +103,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
     |> line_device_sensor_key()
     |> IO.inspect(label: "line_device_sensor_key: ")
     |> :erlang.phash2(@num_processes)
-    |> IO.inspect(label: "partition: ")
   end
 
   def line_device_sensor_key(%Broadway.Message{data: broadway_message_data} = _message) do
