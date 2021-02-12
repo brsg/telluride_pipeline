@@ -10,6 +10,10 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
   use GenServer
 
   alias TelemetryPipeline.Data.SensorAggregate
+  alias TelemetryPipeline.Messaging.SensorAggregateProducer
+
+  @dirty_pool :dirty_pool
+  @publish_interval 1_000
 
   ## Supervision Tree
 
@@ -33,12 +37,32 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
 
   @impl GenServer
   def init(_args) do
-    {:ok, %{}}
+    schedule_publish_task(@publish_interval)
+    sensor_map = Map.put(%{}, @dirty_pool, [])
+    {:ok, sensor_map}
   end
 
   @impl GenServer
   def handle_cast({:upsert, %SensorAggregate{} = aggregate}, sensor_map) do
+    dirty_pool = Map.get(sensor_map, @dirty_pool)
+    dirty_pool = [aggregate.sensor_id | dirty_pool]
     sensor_map = Map.put(sensor_map, aggregate.sensor_id, aggregate)
+    sensor_map = Map.put(sensor_map, @dirty_pool, dirty_pool)
+    {:noreply, sensor_map}
+  end
+
+  @impl GenServer
+  def handle_cast({:publish}, sensor_map) do
+    Map.get(sensor_map, @dirty_pool)
+    |> Enum.reverse()
+    |> Enum.each(fn sensor_id ->
+      s_agg = Map.get(sensor_map, sensor_id)
+      ## Publish to RMQ
+      SensorAggregateProducer.publish(s_agg)
+    end)
+
+    sensor_map = Map.put(sensor_map, @dirty_pool, [])
+
     {:noreply, sensor_map}
   end
 
@@ -46,6 +70,11 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
   def handle_call({:find, sensor_id}, _, sensor_map) do
     value = Map.get(sensor_map, sensor_id)
     {:reply, value, sensor_map}
+  end
+
+  ## Helping / Private
+  defp schedule_publish_task(time) do
+    Process.send_after(self(), :publish, time)
   end
 
 end

@@ -22,9 +22,10 @@ defmodule TelemetryPipeline.Messaging.AMQPConnectionManager do
   ################################################################################
 
   def init(:ok) do
+    import Supervisor.Spec
     children = [
-      {TelemetryPipeline.Messaging.TelemetryEventConsumer, []},
-      {TelemetryPipeline.Messaging.SensorAggregateProducer, []}
+      worker(TelemetryPipeline.Messaging.TelemetryEventConsumer, []),
+      worker(TelemetryPipeline.Messaging.SensorAggregateProducer, [])
     ]
     Supervisor.start_link(children, strategy: :one_for_one, name: TelemetryPipeline.Messaging.AMQPConsumerSupervisor)
     IO.puts("AMQPConnectionManager.init/1")

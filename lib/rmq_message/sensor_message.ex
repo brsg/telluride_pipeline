@@ -51,5 +51,8 @@ defmodule TelemetryPipeline.SensorMessage do
   end
   defp match_element({"sensor_id", value}), do: {:sensor_id, value}
   defp match_element({"timestamp", value}), do: {:timestamp, value}
+  defp match_element(unknown) do
+    IO.inspect(unknown, label: "match_element unknown: ")
+  end
 
 end

@@ -7,7 +7,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   alias TelemetryPipeline.SensorMessage
   alias TelemetryPipeline.DataContainer.{BroadwayConfig, SensorTracker}
   alias TelemetryPipeline.Data.SensorAggregate
-  alias TelemetryPipeline.Messaging.SensorAggregateProducer
 
   @num_processes 2
 
@@ -82,6 +81,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
     messages
     |> Enum.into([], fn %Message{} = message -> message.data end)
+
   end
 
   def handle_batch(:sensor_batcher_two, messages, _batch_info, %{origin_pid: _origin_pid} = _context) do
@@ -91,6 +91,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
     messages
     |> Enum.into([], fn %Message{} = message -> message.data end)
+
   end
 
   def handle_failed(messages, _context) do
@@ -128,9 +129,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
 
     ## Save to in-memory data container
     SensorTracker.upsert(sensor_aggregate)
-
-    ## Publish to RMQ
-    SensorAggregateProducer.publish(sensor_aggregate)
   end
 
   def transform(event, _opts) do
