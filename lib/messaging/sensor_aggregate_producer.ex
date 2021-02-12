@@ -16,6 +16,13 @@ defmodule TelemetryPipeline.Messaging.SensorAggregateProducer do
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 
+  def child_spec(_) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, []}
+    }
+  end
+
   def channel_available(channel) do
     GenServer.cast(__MODULE__, {:channel_available, channel})
   end
