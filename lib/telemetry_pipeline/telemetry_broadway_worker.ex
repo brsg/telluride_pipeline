@@ -125,7 +125,6 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
         sensor_agg = SensorTracker.find(key)
         SensorAggregate.combine(sensor_agg, s_msg)
       end)
-      |> IO.inspect(label: "sensor_aggregate: ")
 
     ## Save to in-memory data container
     SensorTracker.upsert(sensor_aggregate)
