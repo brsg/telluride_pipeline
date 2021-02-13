@@ -58,8 +58,10 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
   def handle_cast({:publish}, sensor_map) do
     Map.get(sensor_map, @dirty_pool)
     |> Enum.reverse()
+    |> Enum.uniq()
     |> Enum.each(fn sensor_id ->
       s_agg = Map.get(sensor_map, sensor_id)
+      IO.inspect(s_agg, label: "\nsensor_tracker SensorAggregate:\t")
       ## Publish to RMQ
       SensorAggregateProducer.publish(SensorAggregate.as_map(s_agg))
       # IO.inspect(s_agg, label: "\nUpdated SensorAggregate:\t")
