@@ -9,6 +9,7 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
   """
   use GenServer
 
+  alias __MODULE__
   alias TelemetryPipeline.Data.SensorAggregate
   alias TelemetryPipeline.Messaging.SensorAggregateProducer
 
@@ -17,8 +18,6 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
 
   ## Supervision Tree
 
-  @doc """
-    """
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
@@ -31,6 +30,10 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
 
   def find(sensor_id) do
     GenServer.call(__MODULE__, {:find, sensor_id})
+  end
+
+  def publish() do
+    GenServer.cast(__MODULE__, {:publish})
   end
 
   ## Server Callbacks
@@ -58,10 +61,22 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
     |> Enum.each(fn sensor_id ->
       s_agg = Map.get(sensor_map, sensor_id)
       ## Publish to RMQ
-      SensorAggregateProducer.publish(s_agg)
+      SensorAggregateProducer.publish(SensorAggregate.as_map(s_agg))
+      # IO.inspect(s_agg, label: "\nUpdated SensorAggregate:\t")
     end)
 
     sensor_map = Map.put(sensor_map, @dirty_pool, [])
+
+    {:noreply, sensor_map}
+  end
+
+  @impl GenServer
+  def handle_info({:publish}, sensor_map) do
+    # IO.inspect(sensor_map, label: "args: ")
+
+    SensorTracker.publish()
+
+    schedule_publish_task(@publish_interval)
 
     {:noreply, sensor_map}
   end
@@ -74,7 +89,7 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
 
   ## Helping / Private
   defp schedule_publish_task(time) do
-    Process.send_after(self(), :publish, time)
+    Process.send_after(self(), {:publish}, time)
   end
 
 end

@@ -48,4 +48,14 @@ defmodule TelemetryPipeline.Data.SensorAggregate do
       mean: mean
     }
   end
+
+  def as_map(%SensorAggregate{} = agg) do
+    %{
+      sensor_id: agg.sensor_id,
+      total_reads: agg.total_reads,
+      min: agg.min,
+      max: agg.max,
+      mean: agg.mean
+    }
+  end
 end
