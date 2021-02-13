@@ -1,58 +1,51 @@
 defmodule TelemetryPipeline.TelemetryMetrics do
   require Logger
 
-  ##
-  ## TODO: These functions are invoked synchronously.
-  ## TODO: For further processing, use send to asynchronously care for this information
-  ##
-  def handle_event([:broadway, :processor, :start], _measurements, metadata, _config) do
+  alias TelemetryPipeline.DataContainer.InstrumentationTracker
+  alias TelemetryPipeline.Data.NodeMetric
+
+  def handle_event([:broadway, :processor, :start], _measurements, _metadata, _config) do
     # Logger.info("[:broadway, :processor, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :processor, :start] name #{name}")
   end
   def handle_event([:broadway, :processor, :stop], measurements, metadata, _config) do
-    duration_ms = as_milliseconds(measurements)
-    # Logger.info("duration #{duration_ms} [:broadway, :processor, :stop] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :processor, :stop] name #{name} duration #{duration_ms}")
+    track_instrumentation( measurements, metadata)
   end
-  def handle_event([:broadway, :batcher, :start], _measurements, metadata, _config) do
-    # Logger.info("[:broadway, :batcher, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :batcher, :start] name #{name}")
+  def handle_event([:broadway, :batcher, :start], _measurements, _metadata, _config) do
+    # Logger.info("processor_name #{name} [:broadway, :batcher, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
   end
   def handle_event([:broadway, :batcher, :stop], measurements, metadata, _config) do
-    duration_ms = as_milliseconds(measurements)
-    # Logger.info("duration #{duration_ms} [:broadway, :batcher, :stop] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :batcher, :stop] name #{name} duration #{duration_ms}")
+    track_instrumentation( measurements, metadata)
   end
-  def handle_event([:broadway, :consumer, :start], _measurements, metadata, _config) do
-    # Logger.info("[:broadway, :consumer, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :consumer, :start] name #{name}")
+  def handle_event([:broadway, :consumer, :start], _measurements, _metadata, _config) do
+    # Logger.info("name #{name} [:broadway, :consumer, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
   end
   def handle_event([:broadway, :consumer, :stop], measurements, metadata, _config) do
-    duration_ms = as_milliseconds(measurements)
-    # Logger.info("duration #{duration_ms} [:broadway, :consumer, :stop] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :consumer, :stop] name #{name} duration #{duration_ms}")
+    track_instrumentation( measurements, metadata)
   end
-  def handle_event([:broadway, :processor, :message, :start], _measurements, metadata, _config) do
-    # Logger.info("[:broadway, :processor, :message, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :processor, :message, :start] name #{name}")
+  def handle_event([:broadway, :processor, :message, :start], _measurements, _metadata, _config) do
+    # Logger.info("name #{name} [:broadway, :processor, :message, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
   end
   def handle_event([:broadway, :processor, :message, :stop], measurements, metadata, _config) do
-    duration_ms = as_milliseconds(measurements)
-    # Logger.info("duration #{duration_ms} [:broadway, :processor, :message, :stop] measurement #{inspect measurements} metadata #{inspect metadata}")
-    name = processor_name(metadata)
-    Logger.info("[:broadway, :processor, :message, :stop] name #{name} duration #{duration_ms}")
+    track_instrumentation(measurements, metadata)
   end
 
-  def processor_name(%{name: name} = _metadata), do: name
-
-  def as_milliseconds(%{duration: duration}), do: as_milliseconds(duration)
-  def as_milliseconds(duration) when is_integer(duration), do: System.convert_time_unit(duration, :native, :millisecond)
+  defp track_instrumentation(measurements, metadata) do
+    metric_map =
+      %{
+        name: metadata[:batcher],
+        partition: metadata[:partition],
+        call_count: 1,
+        msg_count: metadata[:size] || 1,
+        last_duration: measurements[:duration],
+        min_duration: measurements[:duration],
+        max_duration: measurements[:duration],
+        mean_duration: measurements[:duration],
+        first_time: measurements[:time],
+        last_time: measurements[:time]
+      }
+    metric = NodeMetric.new(metric_map)
+    IO.inspect(metric, label: "\ntelemetry_metrics metric:\t")
+    InstrumentationTracker.upsert(metric)
+  end
 
 end
