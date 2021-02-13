@@ -40,26 +40,26 @@ defmodule TelemetryPipeline.DataContainer.InstrumentationTracker do
   @impl GenServer
   def handle_cast({:upsert, %NodeMetric{} = metric}, node_map) do
     key = NodeMetric.key(metric)
-    IO.inspect(key, label: "\ninstrumentation_tracker key to UPSERT:\t")
+    # IO.inspect(key, label: "\ninstrumentation_tracker key to UPSERT:\t")
     current_metric = Map.get(node_map, key)
     combined_metric = NodeMetric.combine(current_metric, metric)
     node_map = Map.put(node_map, key, combined_metric)
     dirty_pool = Map.get(node_map, @dirty_pool)
     dirty_pool = [key | dirty_pool]
-    IO.inspect(dirty_pool, label: "\ndirty_pool:\t")
+    # IO.inspect(dirty_pool, label: "\ndirty_pool:\t")
     node_map = Map.put(node_map, @dirty_pool, dirty_pool)
     {:noreply, node_map}
   end
 
   @impl GenServer
   def handle_cast({:publish}, node_map) do
-    IO.inspect(node_map, label: "handle_cast node_map: ")
+    # IO.inspect(node_map, label: "handle_cast node_map: ")
     Map.get(node_map, @dirty_pool)
     |> Enum.uniq()
     |> Enum.each(fn key ->
-      IO.inspect(key, label: "\ninstrumentation_tracker key to publish:\t")
+      # IO.inspect(key, label: "\ninstrumentation_tracker key to publish:\t")
       node_metric = Map.get(node_map, key)
-      IO.inspect(node_metric, label: "\nvalue for key:\t")
+      # IO.inspect(node_metric, label: "\nvalue for key:\t")
       MetricProducer.publish(NodeMetric.as_map(node_metric))
       # IO.inspect(node_metric, label: "\nUpdated NodeMetric:\t")
     end)

@@ -34,9 +34,9 @@ defmodule TelemetryPipeline.TelemetryMetrics do
   end
 
   defp track_message_instrumentation(measurements, metadata) do
-    IO.inspect(metadata, label: "\ntelemetry_metrics track_message_instrumentation:\t")
+    # IO.inspect(metadata, label: "\ntelemetry_metrics track_message_instrumentation:\t")
     %Message{} = message = metadata[:message]
-    IO.inspect(message, label: "\nMessage:\t")
+    # IO.inspect(message, label: "\nMessage:\t")
     batcher = Map.get(message, :batcher)
     partition = Map.get(message, :processor_key)
     size = 1
@@ -54,16 +54,16 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    IO.inspect(metric, label: "\ntelemetry_metrics message metric:\t")
+    # IO.inspect(metric, label: "\ntelemetry_metrics message metric:\t")
     # InstrumentationTracker.upsert(metric)
 
   end
 
   defp track_batcher_instrumentation(measurements, metadata) do
-    IO.inspect(metadata, label: "\ntelemetry_metrics track_batcher_instrumentation:\t")
+    # IO.inspect(metadata, label: "\ntelemetry_metrics track_batcher_instrumentation:\t")
 
     %BatchInfo{} = info = metadata[:batch_info]
-    IO.inspect(info, label: "\nBatchInfo:\t")
+    # IO.inspect(info, label: "\nBatchInfo:\t")
 
     batcher = Map.get(info, :batcher)
     partition = Map.get(info, :partition)
@@ -83,25 +83,25 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    IO.inspect(metric, label: "\ntelemetry_metrics batcher metric:\t")
+    # IO.inspect(metric, label: "\ntelemetry_metrics batcher metric:\t")
     InstrumentationTracker.upsert(metric)
   end
 
   defp track_instrumentation(measurements, metadata) do
-    IO.inspect(measurements, label: "\ntelemetry_metrics measurements:\t")
-    IO.inspect(metadata, label: "\ntelemetry_metrics metadata:\t")
+    # IO.inspect(measurements, label: "\ntelemetry_metrics measurements:\t")
+    # IO.inspect(metadata, label: "\ntelemetry_metrics metadata:\t")
 
     name_list =
       metadata[:name]
-      |> IO.inspect(label: "\nname:\t")
+      # |> IO.inspect(label: "\nname:\t")
       |> to_string()
-      |> IO.inspect(label: "\nname string:\t")
+      # |> IO.inspect(label: "\nname string:\t")
       |> String.split(~r{\.})
-      |> IO.inspect(label: "\nsplit:\t")
+      # |> IO.inspect(label: "\nsplit:\t")
       |> List.last()
-      |> IO.inspect(label: "\nlast:\t")
+      # |> IO.inspect(label: "\nlast:\t")
       |> String.split("_")
-      |> IO.inspect(label: "\nname_list:\t")
+      # |> IO.inspect(label: "\nname_list:\t")
 
     [_node|tail] = name_list
     [name|tail] = tail
@@ -122,7 +122,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    IO.inspect(metric, label: "\ntelemetry_metrics metric:\t")
+    # IO.inspect(metric, label: "\ntelemetry_metrics metric:\t")
     # InstrumentationTracker.upsert(metric)
   end
 
