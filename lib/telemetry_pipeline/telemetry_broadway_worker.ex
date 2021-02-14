@@ -48,7 +48,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
       },
       producer: [
         module: {BroadwayRabbitMQ.Producer, [
-          queue: "events",
+          queue: "sensor_reading_queue",
+          bindings: [{"sensor_events", []}]
           on_success: :ack,
           on_failure: :reject
         ]},
