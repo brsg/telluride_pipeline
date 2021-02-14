@@ -4,7 +4,7 @@ defmodule TelemetryPipeline.Messaging.SensorAggregateProducer do
   alias __MODULE__
 
   @exchange       "sensor_events"
-  @message_queue  "sensor_health"
+  @message_queue  "sensor_health_queue"
   @error_queue    "errors"
   @routing_key    "sensor.health"
 
