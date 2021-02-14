@@ -3,11 +3,12 @@ defmodule TelemetryPipeline.Messaging.MetricProducer do
 
   alias __MODULE__
 
-  @exchange       "metric_events"
-  @message_queue  "sensor_metric"
-  @error_queue    "errors"
+  @exchange       "sensor_events"
+  @message_queue  "sensor_metric_queue"
   @routing_key    "sensor.metric"
 
+  @dlx_queue        "dlx_queue"
+  @dlx_routing_key  "dlx_key"
   ################################################################################
   # Client interface
   ################################################################################
@@ -73,7 +74,7 @@ defmodule TelemetryPipeline.Messaging.MetricProducer do
     # Declare the error queue
     {:ok, _} = AMQP.Queue.declare(
       channel,
-      @error_queue,
+      @dlx_queue,
       durable: true
     )
 
@@ -85,8 +86,8 @@ defmodule TelemetryPipeline.Messaging.MetricProducer do
       @message_queue,
       durable: true,
       arguments: [
-        {"x-dead-letter-exchange", :longstr, ""},
-        {"x-dead-letter-routing-key", :longstr, @error_queue}
+        {"x-dead-letter-exchange", @exchange},
+        {"x-dead-letter-routing-key", @dlx_routing_key}
       ]
     )
 

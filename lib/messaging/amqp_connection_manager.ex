@@ -23,7 +23,7 @@ defmodule TelemetryPipeline.Messaging.AMQPConnectionManager do
 
   def init(:ok) do
     children = [
-      {TelemetryPipeline.Messaging.TelemetryEventConsumer, []},
+      {TelemetryPipeline.Messaging.BroadwayConfigConsumer, []},
       {TelemetryPipeline.Messaging.SensorAggregateProducer, []},
       {TelemetryPipeline.Messaging.MetricProducer, []}
     ]

@@ -6,7 +6,6 @@ defmodule TelemetryPipeline.Application do
   def start(_type, _args) do
     IO.puts("TelemetryPipeline.Application.start/2")
     children = [
-      # TelemetryPipeline.Messaging.TelemetryEventConsumer,
       TelemetryPipeline.DataContainer.BroadwayConfig,
       TelemetryPipeline.DataContainer.SensorTracker,
       TelemetryPipeline.DataContainer.InstrumentationTracker,
