@@ -8,9 +8,33 @@ defmodule TelemetryPipeline.TelemetryMetrics do
   def handle_event([:broadway, :processor, :start], _measurements, _metadata, _config) do
     # Logger.info("[:broadway, :processor, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
   end
-  def handle_event([:broadway, :processor, :stop] = _msg, _measurements, _metadata, _config) do
-    # IO.inspect(msg, label: "\nhandle_event msg:\t")
-    # track_instrumentation( measurements, metadata)
+  def handle_event([:broadway, :processor, :stop] = _msg, measurements, metadata, _config) do
+    name_list =
+      metadata[:name]
+      |> to_string()
+      |> String.split(~r{\.})
+      |> List.last()
+      |> String.split("_")
+
+    [_node|tail] = name_list
+    [name|tail] = tail
+    [partition|_tail] = tail
+
+    metric_map =
+      %{
+        name: name,
+        partition: String.to_integer(partition),
+        call_count: 1,
+        msg_count: 1,
+        last_duration: measurements[:duration],
+        min_duration: measurements[:duration],
+        max_duration: measurements[:duration],
+        mean_duration: measurements[:duration],
+        first_time: measurements[:time],
+        last_time: measurements[:time]
+      }
+    metric = NodeMetric.new(metric_map)
+    InstrumentationTracker.upsert(metric)
   end
   def handle_event([:broadway, :batcher, :start], _measurements, _metadata, _config) do
     # Logger.info("processor_name #{name} [:broadway, :batcher, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
