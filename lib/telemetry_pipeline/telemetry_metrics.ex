@@ -1,8 +1,8 @@
 defmodule TelemetryPipeline.TelemetryMetrics do
   require Logger
 
-  alias TelemetryPipeline.DataContainer.InstrumentationTracker
-  alias TelemetryPipeline.Data.NodeMetric
+  alias TelemetryPipeline.DataContainer.{InstrumentationTracker, ThroughputTracker}
+  alias TelemetryPipeline.Data.{NodeMetric, Throughput}
   alias Broadway.{BatchInfo, Message}
 
   def handle_event([:broadway, :processor, :start], _measurements, _metadata, _config) do
@@ -68,6 +68,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
   end
   def handle_event([:broadway, :consumer, :stop], measurements, metadata, _config) do
     track_batcher_instrumentation( measurements, metadata)
+    track_throughput(measurements, metadata)
   end
   def handle_event([:broadway, :processor, :message, :start], _measurements, _metadata, _config) do
     # Logger.info("name #{name} [:broadway, :processor, :message, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
@@ -94,7 +95,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
     InstrumentationTracker.upsert(metric)
   end
 
-  defp track_batcher_instrumentation(measurements, metadata) do
+  defp track_batcher_instrumentation(%{} = measurements, %{} = metadata) do
     # IO.inspect(metadata, label: "\ntelemetry_metrics track_batcher_instrumentation:\t")
 
     %BatchInfo{} = info = metadata[:batch_info]
@@ -120,6 +121,34 @@ defmodule TelemetryPipeline.TelemetryMetrics do
     metric = NodeMetric.new(metric_map)
     # IO.inspect(metric, label: "\ntelemetry_metrics batcher metric:\t")
     InstrumentationTracker.upsert(metric)
+  end
+
+  def track_throughput(%{} = measurements, %{} = metadata) do
+    IO.inspect(metadata, label: "\ntelemetry_metrics track_throughput:\t")
+
+    %BatchInfo{} = info = metadata[:batch_info]
+    size = Map.get(info, :size)
+
+    failed_message_count =
+      metadata[:failed_messages]
+      |> Enum.count()
+
+    success_message_count =
+      metadata[:successful_messages]
+      |> Enum.count()
+
+    throughput_map =
+      %{
+        raw_time: measurements[:time],
+        message_count: size,
+        fail_count: failed_message_count,
+        success_count: success_message_count
+      }
+
+    throughput = Throughput.new(throughput_map)
+
+    ThroughputTracker.upsert(throughput)
+
   end
 
 end

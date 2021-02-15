@@ -9,6 +9,7 @@ defmodule TelemetryPipeline.Application do
       TelemetryPipeline.DataContainer.BroadwayConfig,
       TelemetryPipeline.DataContainer.SensorTracker,
       TelemetryPipeline.DataContainer.InstrumentationTracker,
+      TelemetryPipeline.DataContainer.ThroughputTracker,
       TelemetryPipeline.Messaging.AMQPConnectionManager,
       TelemetryPipeline.TelemetryBroadwayManager,
       TelemetryPipeline.TelemetryBroadwayWorker
