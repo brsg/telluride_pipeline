@@ -46,7 +46,7 @@ defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
   @impl GenServer
   def handle_cast({:publish}, throughput) do
     if throughput do
-      ThroughputProducer.publish(throughput)
+      ThroughputProducer.publish(Throughput.as_map(throughput))
     end
 
     {:noreply, throughput}

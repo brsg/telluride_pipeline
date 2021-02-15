@@ -45,4 +45,13 @@ defmodule TelemetryPipeline.Data.Throughput do
     }
   end
 
+  def as_map(%Throughput{} = throughput) do
+    %{
+      earliest_raw_time: throughput.earliest_raw_time,
+      last_raw_time: throughput.last_raw_time,
+      total_message_count: throughput.total_message_count,
+      total_failed_count: throughput.total_failed_count,
+      total_successful_count: throughput.total_successful_count
+    }
+  end
 end
