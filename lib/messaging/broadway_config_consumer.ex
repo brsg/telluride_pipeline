@@ -2,7 +2,10 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   use GenServer
   use AMQP
 
+  require Logger
+
   alias TelemetryPipeline.Messaging.AMQPConnectionManager
+  alias TelemetryPipeline.DataContainer.BroadwayConfig
 
   @exchange         "sensor_events"
   @message_queue    "broadway_config_queue"
@@ -61,6 +64,10 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   end
 
   def handle_info({:basic_deliver, payload, %{delivery_tag: tag, redelivered: redelivered}}, channel) do
+    decoded_payload = JSON.decode!(payload)
+    IO.inspect(decoded_payload, label: "\ndecoded_payload:\t")
+    apply_configuration(decoded_payload)
+
     consume(channel, tag, redelivered, payload)
     {:noreply, channel}
   end
@@ -68,6 +75,47 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
   # Private
   ################################################################################
+
+  defp apply_configuration(%{} = config_map) do
+    # IO.inspect(config_map, label: "\nconfig_map:\t")
+    Map.keys(config_map)
+    |> Enum.each(fn key ->
+      # IO.inspect(key, label: "\nkey:\t")
+      value = Map.get(config_map, key)
+      # IO.inspect(value, label: "\nvalue:\t")
+      :ok = apply_to_broadway_config(key, value)
+      # |> IO.inspect(label: "\napply_to_broadway_config result:\t")
+    end)
+  end
+
+  defp apply_to_broadway_config("processor_concurrency", value) when is_integer(value) do
+    BroadwayConfig.assign_processor_concurrency(value)
+  end
+  defp apply_to_broadway_config("producer_concurrency", value) when is_integer(value) do
+    BroadwayConfig.assign_producer_concurrency(value)
+  end
+  defp apply_to_broadway_config("rate_limit_allowed", value) when is_integer(value) do
+    BroadwayConfig.assign_rate_limit_allowed(value)
+  end
+  defp apply_to_broadway_config("rate_limit_interval", value) when is_integer(value) do
+    BroadwayConfig.assign_rate_limit_interval(value)
+  end
+  defp apply_to_broadway_config("sensor_batcher_one_batch_size", value) when is_integer(value) do
+    BroadwayConfig.assign_sensor_batcher_one_batch_size(value)
+  end
+  defp apply_to_broadway_config("sensor_batcher_one_concurrency", value) when is_integer(value) do
+    BroadwayConfig.assign_sensor_batcher_one_concurrency(value)
+  end
+  defp apply_to_broadway_config("sensor_batcher_two_batch_size", value) when is_integer(value) do
+    BroadwayConfig.assign_sensor_batcher_two_batch_size(value)
+  end
+  defp apply_to_broadway_config("sensor_batcher_two_concurrency", value) when is_integer(value) do
+    BroadwayConfig.assign_sensor_batcher_two_concurrency(value)
+  end
+  defp apply_to_broadway_config(key, value) do
+    Logger.error("Unknown config key #{inspect key} or value #{inspect value}")
+    :error
+  end
 
   defp setup_queue(channel) do
     IO.puts("BroadwayConfigConsumer.setup_queue(#{inspect channel})")
