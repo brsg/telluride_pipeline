@@ -8,6 +8,7 @@ defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
 
   alias __MODULE__
   alias TelemetryPipeline.Data.Throughput
+  alias TelemetryPipeline.Messaging.ThroughputProducer
 
   @publish_interval 1_000
 
@@ -45,9 +46,7 @@ defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
   @impl GenServer
   def handle_cast({:publish}, throughput) do
     if throughput do
-      IO.inspect(throughput, label: "\nthroughput to publish:\t")
-    else
-      IO.puts("\nthroughput is nil, nothing to publish\n")
+      ThroughputProducer.publish(throughput)
     end
 
     {:noreply, throughput}

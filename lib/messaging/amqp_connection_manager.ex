@@ -25,7 +25,8 @@ defmodule TelemetryPipeline.Messaging.AMQPConnectionManager do
     children = [
       {TelemetryPipeline.Messaging.BroadwayConfigConsumer, []},
       {TelemetryPipeline.Messaging.SensorAggregateProducer, []},
-      {TelemetryPipeline.Messaging.MetricProducer, []}
+      {TelemetryPipeline.Messaging.MetricProducer, []},
+      {TelemetryPipeline.Messaging.ThroughputProducer, []}
     ]
     Supervisor.start_link(children, strategy: :one_for_one, name: TelemetryPipeline.Messaging.AMQPConsumerSupervisor)
     IO.puts("AMQPConnectionManager.init/1")
