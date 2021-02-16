@@ -22,7 +22,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
-        node: "producer",
+        node_type: "producer",
         name: name,
         partition: String.to_integer(partition),
         call_count: 1,
@@ -52,7 +52,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
-        node: "batcher",
+        node_type: "batcher",
         name: name,
         partition: 0,
         call_count: 1,
@@ -86,7 +86,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
     size = 1
     metric_map =
       %{
-        node: "processor",
+        node_type: "processor",
         name: batcher,
         partition: 0,
         call_count: 1,
@@ -116,7 +116,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
-        node: "batcher_processor",
+        node_type: "batcher_processor",
         name: batcher,
         partition: partition,
         call_count: 1,

@@ -6,7 +6,7 @@ defmodule TelemetryPipeline.Data.NodeMetric do
   @high_value 1_000_000_000_000
 
   defstruct [
-    node: nil,
+    node_type: nil,
     name: nil,
     partition: nil,
     call_count: nil,
@@ -20,7 +20,7 @@ defmodule TelemetryPipeline.Data.NodeMetric do
   ]
 
   def new(%{
-    node: node,
+    node_type: node_type,
     name: name,
     partition: partition,
     call_count: call_count,
@@ -34,7 +34,7 @@ defmodule TelemetryPipeline.Data.NodeMetric do
   }) do
     name = ensure_binary(name)
     %__MODULE__{
-      node: node,
+      node_type: node_type,
       name: name,
       partition: partition,
       call_count: call_count,
@@ -48,23 +48,23 @@ defmodule TelemetryPipeline.Data.NodeMetric do
     }
   end
 
-  def key(%NodeMetric{node: _node, name: _name, partition: partition} = metric)
+  def key(%NodeMetric{node_type: _node_type, name: _name, partition: partition} = metric)
   when is_integer(partition) do
     key(%NodeMetric{metric | partition: to_string(partition)})
   end
-  def key(%NodeMetric{node: _node, name: name, partition: _partition} = metric) when is_atom(name) do
+  def key(%NodeMetric{node_type: _node_type, name: name, partition: _partition} = metric) when is_atom(name) do
     key(%NodeMetric{metric | name: to_string(name)})
   end
-  def key(%NodeMetric{node: node, name: name, partition: partition})
+  def key(%NodeMetric{node_type: node_type, name: name, partition: partition})
   when is_binary(partition) do
-    node <> "::" <> name <> "::" <> partition
+    node_type <> "::" <> name <> "::" <> partition
   end
 
   def combine(nil, %NodeMetric{} = next) do
     name = ensure_binary(next.name)
     nil_metric =
       %__MODULE__{
-        node: next.node,
+        node_type: next.node_type,
         name: name,
         partition: next.partition,
         call_count: 0,
@@ -84,7 +84,7 @@ defmodule TelemetryPipeline.Data.NodeMetric do
     mean_duration = ((current.mean_duration * current.call_count) + next.last_duration) / total_count
 
     %__MODULE__{
-      node: current.node,
+      node_type: current.node_type,
       name: current.name,
       partition: current.partition,
       call_count: total_count,
@@ -100,7 +100,7 @@ defmodule TelemetryPipeline.Data.NodeMetric do
 
   def as_map(%NodeMetric{} = metric) do
     %{
-      node: metric.node,
+      node_type: metric.node_type,
       name: metric.name,
       partition: metric.partition,
       call_count: metric.call_count,
