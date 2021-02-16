@@ -22,6 +22,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
+        node: "producer",
         name: name,
         partition: String.to_integer(partition),
         call_count: 1,
@@ -34,7 +35,8 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    # IO.inspect(metric, label: "\nprocessor:\t")
+    # IO.inspect(metric, label: "\n(A) processor:\t")
+    # IO.inspect(metadata, label: "\n(A) metadata:\t")
     InstrumentationTracker.upsert(metric)
   end
   def handle_event([:broadway, :batcher, :start], _measurements, _metadata, _config) do
@@ -50,6 +52,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
+        node: "batcher",
         name: name,
         partition: 0,
         call_count: 1,
@@ -62,7 +65,8 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    # IO.inspect(metric, label: "\nbatcher:\t")
+    # IO.inspect(metric, label: "\n(C) batcher:\t")
+    # IO.inspect(metadata, label: "\n(C) metadata:\t")
     InstrumentationTracker.upsert(metric)
    end
   def handle_event([:broadway, :consumer, :start], _measurements, _metadata, _config) do
@@ -82,6 +86,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
     size = 1
     metric_map =
       %{
+        node: "processor",
         name: batcher,
         partition: 0,
         call_count: 1,
@@ -94,7 +99,8 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    # IO.inspect(metric, label: "\nprocessor message:\t")
+    # IO.inspect(metric, label: "\n(B) processor message:\t")
+    # IO.inspect(metadata, label: "\n(B) metadata:\t")
     InstrumentationTracker.upsert(metric)
   end
 
@@ -110,6 +116,7 @@ defmodule TelemetryPipeline.TelemetryMetrics do
 
     metric_map =
       %{
+        node: "batcher_processor",
         name: batcher,
         partition: partition,
         call_count: 1,
@@ -122,8 +129,8 @@ defmodule TelemetryPipeline.TelemetryMetrics do
         last_time: measurements[:time]
       }
     metric = NodeMetric.new(metric_map)
-    # IO.inspect(metric, label: "\nconsumer message:\t")
-    # IO.inspect(metric, label: "\ntelemetry_metrics batcher metric:\t")
+    # IO.inspect(metric, label: "\n(D) consumer message:\t")
+    # IO.inspect(metadata, label: "\n(D) metadata:\t")
     InstrumentationTracker.upsert(metric)
   end
 
