@@ -54,7 +54,6 @@ defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
 
   @impl GenServer
   def handle_info({:publish}, state) do
-    IO.inspect(state, label: "\nhandle_info state:\t")
 
     ThroughputTracker.publish()
 
