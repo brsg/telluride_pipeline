@@ -64,9 +64,14 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   end
 
   def handle_info({:basic_deliver, payload, %{delivery_tag: tag, redelivered: redelivered}}, channel) do
+
+    ## Apply configuration
     decoded_payload = JSON.decode!(payload)
-    IO.inspect(decoded_payload, label: "\ndecoded_payload:\t")
     apply_configuration(decoded_payload)
+
+    ## Signal Broadway to stop so Supervisor will restart with new config
+    GenServer.stop(Broadway1, :normal)
+    |> IO.inspect(label: "\nSTOP result:\t")
 
     consume(channel, tag, redelivered, payload)
     {:noreply, channel}
@@ -77,14 +82,10 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
 
   defp apply_configuration(%{} = config_map) do
-    # IO.inspect(config_map, label: "\nconfig_map:\t")
     Map.keys(config_map)
     |> Enum.each(fn key ->
-      # IO.inspect(key, label: "\nkey:\t")
       value = Map.get(config_map, key)
-      # IO.inspect(value, label: "\nvalue:\t")
       :ok = apply_to_broadway_config(key, value)
-      # |> IO.inspect(label: "\napply_to_broadway_config result:\t")
     end)
   end
 
