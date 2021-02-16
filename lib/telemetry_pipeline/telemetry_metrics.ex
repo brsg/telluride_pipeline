@@ -124,7 +124,6 @@ defmodule TelemetryPipeline.TelemetryMetrics do
   end
 
   def track_throughput(%{} = measurements, %{} = metadata) do
-    IO.inspect(metadata, label: "\ntelemetry_metrics track_throughput:\t")
 
     %BatchInfo{} = info = metadata[:batch_info]
     size = Map.get(info, :size)
