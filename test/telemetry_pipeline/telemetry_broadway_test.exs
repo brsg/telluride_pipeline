@@ -1,11 +1,11 @@
-defmodule TelemetryPipeline.TelemetryBroadwayTest do
+defmodule TelluridePipeline.TelemetryBroadwayTest do
   use ExUnit.Case, async: true
-  doctest TelemetryPipeline.TelemetryBroadwayWorker
+  doctest TelluridePipeline.TelemetryBroadwayWorker
 
   import Integer
 
   alias Broadway.Message
-  alias TelemetryPipeline.{TelemetryBroadwayWorker, TelemetryBroadwayManager, TelemetryMetrics, SensorMessage}
+  alias TelluridePipeline.{TelemetryBroadwayWorker, TelemetryBroadwayManager, TelemetryMetrics, SensorMessage}
 
   setup %{} = context do
     origin_pid = self()
@@ -58,7 +58,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayTest do
         module: {BroadwayRabbitMQ.Producer,
           queue: "events"
         },
-        transformer: {TelemetryPipeline.TelemetryBroadwayWorker, :transform, []},
+        transformer: {TelluridePipeline.TelemetryBroadwayWorker, :transform, []},
       ],
       processors: [
         default: [concurrency: 10]

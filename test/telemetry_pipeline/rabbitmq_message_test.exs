@@ -1,7 +1,7 @@
-defmodule TelemetryPipeline.RabbitmqMessageTest do
+defmodule TelluridePipeline.RabbitmqMessageTest do
   use ExUnit.Case, async: true
 
-  alias TelemetryPipeline.SensorMessage
+  alias TelluridePipeline.SensorMessage
 
   @rmq_msg "{\"device_id\":\"DEV_A\",\"line_id\":\"line_AAA\",\"reading\":119.7549023828733,\"sensor_id\":123,\"timestamp\":\"2021-01-21T19:21:19.370968Z\"}"
 

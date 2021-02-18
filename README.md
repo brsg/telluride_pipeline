@@ -1,6 +1,6 @@
-# TelemetryPipeline
+# TelluridePipeline
 
-TelemetryPipeline collaborates with other repositories to provide an example of [Broadway](https://github.com/dashbitco/broadway) consuming messages from a Rabbit MQ queue in order to monitor the content of the messages, in batches, and then to publish a batch-oriented conclusion back to a queue on Rabbit MQ by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
+TelluridePipeline collaborates with other repositories to provide an example of [Broadway](https://github.com/dashbitco/broadway) consuming messages from a Rabbit MQ queue in order to monitor the content of the messages, in batches, and then to publish a batch-oriented conclusion back to a queue on Rabbit MQ by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
 
 `Broadway` is built on [GenStage](https://github.com/elixir-lang/gen_stage) that is in turn a `GenServer`.  This hierarchy of relationships is leveraged to configure, start, supervise, stop, and restart `Broadway` in this example.  
 
@@ -44,10 +44,10 @@ Our simple domain simply computes a running mean, min, and max value for the sen
 
 # Getting Started
 
-## Usage of TelemetryPipeline.Ets.BroadwayConfig to manage Broadway configuration.
+## Usage of TelluridePipeline.Ets.BroadwayConfig to manage Broadway configuration.
 
 ```Elixir
-alias TelemetryPipeline.Ets.BroadwayConfig
+alias TelluridePipeline.Ets.BroadwayConfig
 :ok = BroadwayConfig.upsert(key, value)   # key must be binary
 value = BroadwayConfig.find(key)            # key must be binary
 ```
@@ -87,7 +87,7 @@ Start telluride_pipeline:
 ```Elixir
 iex -S mix
 # From within iex:
-TelemetryPipeline.TelemetryBroadwayManager.start_or_replace_telluride_pipeline/1
+TelluridePipeline.TelemetryBroadwayManager.start_or_replace_telluride_pipeline/1
 ```
 
 To run test: 

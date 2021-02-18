@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.DataContainer.BroadwayConfig do
+defmodule TelluridePipeline.DataContainer.BroadwayConfig do
   @moduledoc """
   BroadwayConfig is a data container singleton that keeps the
   variable configuration values for a Broadway behaviour.

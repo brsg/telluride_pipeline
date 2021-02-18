@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Messaging.AMQPConnectionManager do
+defmodule TelluridePipeline.Messaging.AMQPConnectionManager do
   use GenServer
   use AMQP
 
@@ -23,12 +23,12 @@ defmodule TelemetryPipeline.Messaging.AMQPConnectionManager do
 
   def init(:ok) do
     children = [
-      {TelemetryPipeline.Messaging.BroadwayConfigConsumer, []},
-      {TelemetryPipeline.Messaging.SensorAggregateProducer, []},
-      {TelemetryPipeline.Messaging.MetricProducer, []},
-      {TelemetryPipeline.Messaging.ThroughputProducer, []}
+      {TelluridePipeline.Messaging.BroadwayConfigConsumer, []},
+      {TelluridePipeline.Messaging.SensorAggregateProducer, []},
+      {TelluridePipeline.Messaging.MetricProducer, []},
+      {TelluridePipeline.Messaging.ThroughputProducer, []}
     ]
-    Supervisor.start_link(children, strategy: :one_for_one, name: TelemetryPipeline.Messaging.AMQPConsumerSupervisor)
+    Supervisor.start_link(children, strategy: :one_for_one, name: TelluridePipeline.Messaging.AMQPConsumerSupervisor)
     IO.puts("AMQPConnectionManager.init/1")
 
     establish_new_connection()

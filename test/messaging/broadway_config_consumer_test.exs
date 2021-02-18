@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumerTest do
+defmodule TelluridePipeline.Messaging.BroadwayConfigConsumerTest do
   use ExUnit.Case, async: true
 
   @exchange         "sensor_events"

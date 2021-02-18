@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.DataContainer.SensorTracker do
+defmodule TelluridePipeline.DataContainer.SensorTracker do
   @moduledoc """
   SensorTracker is a singleton server process acting as a data container for
   aggregate sensor that tracks min, max, and mean.  It is
@@ -10,8 +10,8 @@ defmodule TelemetryPipeline.DataContainer.SensorTracker do
   use GenServer
 
   alias __MODULE__
-  alias TelemetryPipeline.Data.SensorAggregate
-  alias TelemetryPipeline.Messaging.SensorAggregateProducer
+  alias TelluridePipeline.Data.SensorAggregate
+  alias TelluridePipeline.Messaging.SensorAggregateProducer
 
   @dirty_pool :dirty_pool
   @publish_interval 1_000

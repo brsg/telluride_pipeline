@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Data.NodeMetric do
+defmodule TelluridePipeline.Data.NodeMetric do
 
   require Logger
   alias __MODULE__

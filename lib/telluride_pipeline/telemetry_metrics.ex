@@ -1,8 +1,8 @@
-defmodule TelemetryPipeline.TelemetryMetrics do
+defmodule TelluridePipeline.TelemetryMetrics do
   require Logger
 
-  alias TelemetryPipeline.DataContainer.{InstrumentationTracker, ThroughputTracker}
-  alias TelemetryPipeline.Data.{NodeMetric, Throughput}
+  alias TelluridePipeline.DataContainer.{InstrumentationTracker, ThroughputTracker}
+  alias TelluridePipeline.Data.{NodeMetric, Throughput}
   alias Broadway.{BatchInfo, Message}
 
   def handle_event([:broadway, :processor, :start], _measurements, _metadata, _config) do

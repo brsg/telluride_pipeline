@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.SensorMessage do
+defmodule TelluridePipeline.SensorMessage do
   defstruct device_id: nil,
     line_id: nil,
     reading: nil,

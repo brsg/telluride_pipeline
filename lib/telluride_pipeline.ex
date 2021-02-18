@@ -1,6 +1,6 @@
-defmodule TelemetryPipeline do
+defmodule TelluridePipeline do
   @moduledoc """
-  Documentation for `TelemetryPipeline`.
+  Documentation for `TelluridePipeline`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule TelemetryPipeline do
 
   ## Examples
 
-      iex> TelemetryPipeline.hello()
+      iex> TelluridePipeline.hello()
       :world
 
   """

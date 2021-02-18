@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.MixProject do
+defmodule TelluridePipeline.MixProject do
   use Mix.Project
 
   def project do
@@ -14,7 +14,7 @@ defmodule TelemetryPipeline.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {TelemetryPipeline.Application, []},
+      mod: {TelluridePipeline.Application, []},
       extra_applications: [:logger]
     ]
   end

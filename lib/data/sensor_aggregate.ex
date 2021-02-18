@@ -1,6 +1,6 @@
-defmodule TelemetryPipeline.Data.SensorAggregate do
+defmodule TelluridePipeline.Data.SensorAggregate do
   alias __MODULE__
-  alias TelemetryPipeline.SensorMessage
+  alias TelluridePipeline.SensorMessage
   @high_value 1_000_000_000
 
   defstruct [

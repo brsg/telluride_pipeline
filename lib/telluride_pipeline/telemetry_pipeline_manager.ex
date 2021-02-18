@@ -1,8 +1,8 @@
-defmodule TelemetryPipeline.TelemetryBroadwayManager do
+defmodule TelluridePipeline.TelemetryBroadwayManager do
   use DynamicSupervisor
 
   alias Broadway.Message
-  alias TelemetryPipeline.{TelemetryBroadwayWorker, TelemetryMetrics}
+  alias TelluridePipeline.{TelemetryBroadwayWorker, TelemetryMetrics}
 
   ################################################################################
   # Client interface
