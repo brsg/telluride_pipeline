@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.DataContainer.InstrumentationTracker do
+defmodule TelluridePipeline.DataContainer.InstrumentationTracker do
   @moduledoc """
   InstrumentationTracker is a singleton server process acting as a data container for
   Broadway metric summarization and publishing to RMQ.
@@ -6,8 +6,8 @@ defmodule TelemetryPipeline.DataContainer.InstrumentationTracker do
   use GenServer
 
   alias __MODULE__
-  alias TelemetryPipeline.Data.NodeMetric
-  alias TelemetryPipeline.Messaging.MetricProducer
+  alias TelluridePipeline.Data.NodeMetric
+  alias TelluridePipeline.Messaging.MetricProducer
 
   @dirty_pool :alarm_handler
   @publish_interval 1_000

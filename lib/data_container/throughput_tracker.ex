@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
+defmodule TelluridePipeline.DataContainer.ThroughputTracker do
   @moduledoc """
   ThroughputTracker is a singleton data container server process that tracks
   overall throughput as earliest raw time, latest raw time, total message count,
@@ -7,8 +7,8 @@ defmodule TelemetryPipeline.DataContainer.ThroughputTracker do
   use GenServer
 
   alias __MODULE__
-  alias TelemetryPipeline.Data.Throughput
-  alias TelemetryPipeline.Messaging.ThroughputProducer
+  alias TelluridePipeline.Data.Throughput
+  alias TelluridePipeline.Messaging.ThroughputProducer
 
   @publish_interval 1_000
 

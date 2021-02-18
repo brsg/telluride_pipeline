@@ -1,6 +1,6 @@
-# TelemetryPipeline
+# TelluridePipeline
 
-TelemetryPipeline collaborates with other repositories to provide an example of [Broadway](https://github.com/dashbitco/broadway) consuming messages from a Rabbit MQ queue in order to monitor the content of the messages, in batches, and then to publish a batch-oriented conclusion back to a queue on Rabbit MQ by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
+TelluridePipeline collaborates with other repositories to provide an example of [Broadway](https://github.com/dashbitco/broadway) consuming messages from a Rabbit MQ queue in order to monitor the content of the messages, in batches, and then to publish a batch-oriented conclusion back to a queue on Rabbit MQ by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
 
 `Broadway` is built on [GenStage](https://github.com/elixir-lang/gen_stage) that is in turn a `GenServer`.  This hierarchy of relationships is leveraged to configure, start, supervise, stop, and restart `Broadway` in this example.  
 
@@ -44,10 +44,10 @@ Our simple domain simply computes a running mean, min, and max value for the sen
 
 # Getting Started
 
-## Usage of TelemetryPipeline.Ets.BroadwayConfig to manage Broadway configuration.
+## Usage of TelluridePipeline.Ets.BroadwayConfig to manage Broadway configuration.
 
 ```Elixir
-alias TelemetryPipeline.Ets.BroadwayConfig
+alias TelluridePipeline.Ets.BroadwayConfig
 :ok = BroadwayConfig.upsert(key, value)   # key must be binary
 value = BroadwayConfig.find(key)            # key must be binary
 ```
@@ -66,7 +66,7 @@ GenServer.stop(a_pid, :normal)
 
 To run:
 
-Start RabbitMQ through one of sensor_simulator or telemetry_pipeline:
+Start RabbitMQ through one of sensor_simulator or telluride_pipeline:
 
 ```Elixir
 cd sensor_simulator/
@@ -76,18 +76,18 @@ bin/rmq-up.sh
 or 
 
 ```elixir
-cd telemetry_pipeline/
+cd telluride_pipeline/
 docker-compose up -d
 ```
 
 Start sensor_simulator according to sensor_simulator/README.md.
 
-Start telemetry_pipeline:
+Start telluride_pipeline:
 
 ```Elixir
 iex -S mix
 # From within iex:
-TelemetryPipeline.TelemetryBroadwayManager.start_or_replace_telemetry_pipeline/1
+TelluridePipeline.TelemetryBroadwayManager.start_or_replace_telluride_pipeline/1
 ```
 
 To run test: 
@@ -99,17 +99,17 @@ mix test --only telemetry_broadway
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `telemetry_pipeline` to your list of dependencies in `mix.exs`:
+by adding `telluride_pipeline` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:telemetry_pipeline, "~> 0.1.0"}
+    {:telluride_pipeline, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/telemetry_pipeline](https://hexdocs.pm/telemetry_pipeline).
+be found at [https://hexdocs.pm/telluride_pipeline](https://hexdocs.pm/telluride_pipeline).
 

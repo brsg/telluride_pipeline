@@ -1,12 +1,12 @@
-defmodule TelemetryPipeline.TelemetryBroadwayWorker do
+defmodule TelluridePipeline.TelemetryBroadwayWorker do
   use Broadway
 
   require Logger
 
   alias Broadway.Message
-  alias TelemetryPipeline.SensorMessage
-  alias TelemetryPipeline.DataContainer.{BroadwayConfig, SensorTracker}
-  alias TelemetryPipeline.Data.SensorAggregate
+  alias TelluridePipeline.SensorMessage
+  alias TelluridePipeline.DataContainer.{BroadwayConfig, SensorTracker}
+  alias TelluridePipeline.Data.SensorAggregate
 
   @num_processes 2
 
@@ -15,7 +15,7 @@ defmodule TelemetryPipeline.TelemetryBroadwayWorker do
   ################################################################################
 
   def start_link(opts) do
-    IO.puts("\nTelemetryPipeline.TelemetryBroadwayWorker.start_link() w/ opts #{inspect opts} \n")
+    IO.puts("\nTelluridePipeline.TelemetryBroadwayWorker.start_link() w/ opts #{inspect opts} \n")
 
     handle_message = fn message, _ ->
       batch_partition =

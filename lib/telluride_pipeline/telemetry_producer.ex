@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.TelemetryProducer do
+defmodule TelluridePipeline.TelemetryProducer do
   @behaviour Broadway.Producer
   use GenStage
 

@@ -1,11 +1,11 @@
-defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
+defmodule TelluridePipeline.Messaging.BroadwayConfigConsumer do
   use GenServer
   use AMQP
 
   require Logger
 
-  alias TelemetryPipeline.Messaging.AMQPConnectionManager
-  alias TelemetryPipeline.DataContainer.BroadwayConfig
+  alias TelluridePipeline.Messaging.AMQPConnectionManager
+  alias TelluridePipeline.DataContainer.BroadwayConfig
 
   @exchange         "sensor_events"
   @message_queue    "broadway_config_queue"
@@ -18,7 +18,7 @@ defmodule TelemetryPipeline.Messaging.BroadwayConfigConsumer do
   ################################################################################
 
   def start_link do
-    IO.puts("TelemetryPipeline.Messaging.BroadwayConfigConsumer.start_link")
+    IO.puts("TelluridePipeline.Messaging.BroadwayConfigConsumer.start_link")
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
 

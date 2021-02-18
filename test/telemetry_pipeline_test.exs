@@ -1,8 +1,8 @@
-defmodule TelemetryPipelineTest do
+defmodule TelluridePipelineTest do
   use ExUnit.Case
-  doctest TelemetryPipeline
+  doctest TelluridePipeline
 
   test "greets the world" do
-    assert TelemetryPipeline.hello() == :world
+    assert TelluridePipeline.hello() == :world
   end
 end

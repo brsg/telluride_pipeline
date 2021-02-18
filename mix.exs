@@ -1,9 +1,9 @@
-defmodule TelemetryPipeline.MixProject do
+defmodule TelluridePipeline.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :telemetry_pipeline,
+      app: :telluride_pipeline,
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
@@ -14,7 +14,7 @@ defmodule TelemetryPipeline.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {TelemetryPipeline.Application, []},
+      mod: {TelluridePipeline.Application, []},
       extra_applications: [:logger]
     ]
   end

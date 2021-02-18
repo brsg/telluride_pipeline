@@ -1,8 +1,8 @@
-defmodule TelemetryPipeline.DataContainer.SensorTrackerTest do
+defmodule TelluridePipeline.DataContainer.SensorTrackerTest do
   use ExUnit.Case, async: true
 
-  alias TelemetryPipeline.Data.SensorAggregate
-  alias TelemetryPipeline.DataContainer.SensorTracker
+  alias TelluridePipeline.Data.SensorAggregate
+  alias TelluridePipeline.DataContainer.SensorTracker
 
   describe "upsert" do
     setup do

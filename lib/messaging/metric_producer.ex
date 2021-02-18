@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Messaging.MetricProducer do
+defmodule TelluridePipeline.Messaging.MetricProducer do
   use GenServer
 
   alias __MODULE__
@@ -43,7 +43,7 @@ defmodule TelemetryPipeline.Messaging.MetricProducer do
 
   @impl GenServer
   def init(_) do
-    TelemetryPipeline.Messaging.AMQPConnectionManager.request_channel(__MODULE__)
+    TelluridePipeline.Messaging.AMQPConnectionManager.request_channel(__MODULE__)
     {:ok, nil}
   end
 

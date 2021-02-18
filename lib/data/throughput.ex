@@ -1,4 +1,4 @@
-defmodule TelemetryPipeline.Data.Throughput do
+defmodule TelluridePipeline.Data.Throughput do
   alias __MODULE__
 
   defstruct [
