@@ -1,6 +1,6 @@
 # TelluridePipeline
 
-TelluridePipeline collaborates with other repositories to provide an example of [Broadway](https://github.com/dashbitco/broadway) consuming messages from a Rabbit MQ queue in order to monitor the content of the messages, in batches, and then to publish a batch-oriented conclusion back to a queue on Rabbit MQ by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
+TelluridePipeline collaborates with [TellurideSensor](https://github.com/brsg/telluride_sensor) and [TellurideUI](https://github.com/brsg/telluride_ui) to provide an example of a [Broadway](https://github.com/dashbitco/broadway) pipeline consuming messages from a `RabbitMQ` queue, in batches, computing some simple aggregate metrics over the stream of messages, and then publishlishing metrics in a batch-oriented way to a queue on `RabbitMQ` by way of the [BroadwayRabbitMQ](https://github.com/dashbitco/broadway_rabbitmq) producer.  The point of this example is not the domain, which is contrived, but the mechanics of `Broadway` and Rabbit MQ working together.
 
 `Broadway` is built on [GenStage](https://github.com/elixir-lang/gen_stage) that is in turn a `GenServer`.  This hierarchy of relationships is leveraged to configure, start, supervise, stop, and restart `Broadway` in this example.  
 
