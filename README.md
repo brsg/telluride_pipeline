@@ -28,20 +28,98 @@ As with all things Elixir, messages are required to cause work to happen.  In th
 
 Our `Broadway` producer is a RabbitMQ consumer.  In our case, can be found in `TelemetryBroadwayWorker`, we expect messages in the shape of the struct represented by `SensorMessage`.  The shape of the message is completely up to you, the domain, and the source of the data.
 
+#### Rabbit MQ Configuration
+
+| Exchange | Exchange Type | Routing Key | Queue |
+| -------- | ----- | ----------- | ----- |
+| sensor_events | direct | sensor.reading | sensor_readings_queue |
+
+#### Message Shape
+
+```
+%SensorMessage{
+  device_id: "line_two_device_02",
+  line_id: "line_two",
+  reading: 156.09505261601717,
+  sensor_id: "line_two::line_two_device_02",
+  timestamp: "2021-02-18T22:18:12.588910Z"
+}
+```
+
 ### SensorAggregateProducer
 
 Our simple example partitions messages by `sensor_id` across two batchers, each with a configurable concurrency and batch size.  The partition_by option in combination with :erlang.phash2/1 ensure that messages associated with a given sensor is always processed by the same Broadway processes.  
 
 Our simple domain simply computes a running mean, min, and max value for the sensor.  It collaborates with another `GenServer` data container, `SensorTracker`, to keep this running tally and to publish those that have changed in a given period back to Rabbit MQ by way of `SensorAggregateProducer`.  
 
+#### Rabbit MQ Configuration
+
+| Exchange | Exchange Type | Routing Key | Queue |
+| -------- | ----- | ----------- | ----- |
+| sensor_events | direct | sensor.health | sensor_health_queue |
+
+#### Message Shape
+
+```
+%SensorAggregate{
+  max: 101.75975626404166,
+  mean: 95.0549809719666,
+  min: 89.0575969722796,
+  sensor_id: "line_two::line_two_device_03",
+  total_reads: 43
+}
+```
+
 ### MetricProducer
 
 `Broadway` includes telemetry and we take advantage of these call backs to track: node-level min, max, and mean, as well as time so that throughput can be calculated.  This information is published to Rabbit MQ by way of `MetricProducer` in collaboration with a `GenServer` data container, `InstrumentationTracker`.
+
+#### Rabbit MQ Configuration
+
+| Exchange | Exchange Type | Routing Key | Queue |
+| -------- | ----- | ----------- | ----- |
+| sensor_events | direct | sensor.metric | sensor_metric_queue |
+
+#### Message Shape
+
+```
+%NodeMetric{
+  call_count: 46,
+  first_time: -576460750997645000,
+  last_duration: 589000,
+  last_time: -576460747795139000,
+  max_duration: 4405000,
+  mean_duration: 1381586.9565217393,
+  min_duration: 376000,
+  msg_count: 446,
+  name: "sensor_batcher_two",
+  node_type: "batcher_processor",
+  partition: 1
+}
+```
 
 ### ThroughputTracker
 
 `Broadway` is comprised of a configurable number of concurrent processes.  We use the built-in telemetry to capture overall throughput by way of the collaboration of a `GenServer` data container, `ThroughputTracker`, and a Rabbit MQ producer, `ThroughputProducer`.  
 
+#### Rabbit MQ Configuration
+
+| Exchange | Exchange Type | Routing Key | Queue |
+| -------- | ----- | ----------- | ----- |
+| sensor_events | direct | broadway.throughput | broadway_throughput_queue |
+
+#### Message Shape
+
+```
+%Throughput{
+  earliest_raw_time: -576460751035217000,
+  last_raw_time: -576460741745295000,
+  total_failed_count: 0,
+  total_message_count: 1056,
+  total_successful_count: 1056
+}
+```
+ 
 # Getting Started
 
 ## Usage of TelluridePipeline.Ets.BroadwayConfig to manage Broadway configuration.
