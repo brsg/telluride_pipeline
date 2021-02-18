@@ -24,6 +24,27 @@ As with all things Elixir, messages are required to cause work to happen.  In th
 
 `Broadway` configuration default values are obtained from config/config.exs.  Once started, our example can be reconfigured by way of `BroadwayConfigConsumer` which expects that the received JSON payload will decode to key-value pairs as found in config/config.exs.
 
+#### Rabbit MQ Configuration
+
+| Exchange | Exchange Type | Routing Key | Queue |
+| -------- | ----- | ----------- | ----- |
+| sensor_events | direct | sensor.config | broadway_config_queue |
+
+#### Message Shape
+
+```
+%{
+  "processor_concurrency" => 6, 
+  "producer_concurrency" => 2, 
+  "rate_limit_allowed" => 50, 
+  "rate_limit_interval" => 1000, 
+  "sensor_batcher_one_batch_size" => 6, 
+  "sensor_batcher_one_concurrency" => 4, 
+  "sensor_batcher_two_batch_size" => 6, 
+  "sensor_batcher_two_concurrency" => 4
+}
+```
+
 ### BroadwayRabbitMQ
 
 Our `Broadway` producer is a RabbitMQ consumer.  In our case, can be found in `TelemetryBroadwayWorker`, we expect messages in the shape of the struct represented by `SensorMessage`.  The shape of the message is completely up to you, the domain, and the source of the data.
