@@ -20,7 +20,7 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-telemetry_pipeline-*.tar
+telluride_pipeline-*.tar
 
 
 # Temporary files for e.g. tests

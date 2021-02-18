@@ -3,7 +3,7 @@ defmodule TelemetryPipeline.MixProject do
 
   def project do
     [
-      app: :telemetry_pipeline,
+      app: :telluride_pipeline,
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,

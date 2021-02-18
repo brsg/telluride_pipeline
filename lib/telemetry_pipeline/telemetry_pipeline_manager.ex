@@ -12,8 +12,8 @@ defmodule TelemetryPipeline.TelemetryBroadwayManager do
     DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
 
-  def start_or_replace_telemetry_pipeline(opts \\ [] ) do
-    IO.inspect(opts, label: "start_or_replace_telemetry_pipeline opts: ")
+  def start_or_replace_telluride_pipeline(opts \\ [] ) do
+    IO.inspect(opts, label: "start_or_replace_telluride_pipeline opts: ")
 
     {:ok, tbw_pid} = TelemetryBroadwayWorker.start_link([])
     IO.inspect(tbw_pid, label: "Broadway pid: ")
