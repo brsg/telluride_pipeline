@@ -80,15 +80,27 @@ defmodule TelluridePipeline.TelemetryMetrics do
     # Logger.info("name #{name} [:broadway, :processor, :message, :start] measurement #{inspect measurements} metadata #{inspect metadata}")
   end
   def handle_event([:broadway, :processor, :message, :stop], measurements, metadata, _config) do
-    %Message{} = batch_message = metadata[:message]
-    message = batch_message.data
-    batcher = Map.get(message, :batcher)
+
+    name_list =
+      metadata[:name]
+      |> to_string()
+      |> String.split(~r{\.})
+      |> List.last()
+      |> String.split("_")
+
+    [_node | tail] = name_list
+    [name | tail] = tail
+    [partition | _tail] = tail
+
+    # %Message{} = batch_message = metadata[:message]
+    # message = batch_message.data
+    # batcher = Map.get(message, :batcher)
     size = 1
     metric_map =
       %{
         node_type: "processor",
-        name: batcher,
-        partition: 0,
+        name: name,
+        partition: partition,
         call_count: 1,
         msg_count: size,
         last_duration: measurements[:duration],
