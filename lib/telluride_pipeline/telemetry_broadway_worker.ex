@@ -8,7 +8,7 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
   alias TelluridePipeline.DataContainer.{BroadwayConfig, SensorTracker}
   alias TelluridePipeline.Data.SensorAggregate
 
-  @num_processes 2
+  @num_processes 4
 
   ################################################################################
   # Client interface
@@ -22,6 +22,8 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
         case partition(message) do
           0 -> :sensor_batcher_one
           1 -> :sensor_batcher_two
+          2 -> :sensor_batcher_one
+          3 -> :sensor_batcher_two
           unexpected -> Logger.error("Unexpected batch partition #{inspect unexpected}")
         end
       message
