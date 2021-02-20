@@ -12,5 +12,5 @@ config :telluride_pipeline,
   sensor_batcher_one_concurrency: 4,
   processor_concurrency: 4,
   producer_concurrency: 4,
-  rate_limit_allowed: 1_000,
+  rate_limit_allowed: 50,
   rate_limit_interval: 1_000
