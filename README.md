@@ -4,6 +4,21 @@ TelluridePipeline collaborates with [TellurideSensor](https://github.com/brsg/te
 
 `Broadway` is built on [GenStage](https://github.com/elixir-lang/gen_stage) that is in turn a `GenServer`.  This hierarchy of relationships is leveraged to configure, start, supervise, stop, and restart `Broadway` in this example.  
 
+## Stack
+
+[Elixir](https://elixir-lang.org/)
+
+<img src="https://elixir-lang.org/images/logo/logo.png" height="60" />
+
+[RabbitMQ](https://www.rabbitmq.com/)
+
+<img src="https://avatars.githubusercontent.com/u/96669?s=200&v=4" height="60" />
+
+with:
+* [broadway](https://github.com/dashbitco/broadway) library
+* [broadway_rabbitmq](https://github.com/dashbitco/broadway_rabbitmq) library
+
+
 ## Broadway Configuration & Re-Configuration
 
 `TelemetryBroadwayWorker` is the `Broadway` module, and its configuration is in its' start_link/1 function.  While start_link/1 is a bit verbose, the mileage that is achieved in terms of worker processes is tremendous.
