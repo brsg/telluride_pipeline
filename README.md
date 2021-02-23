@@ -4,6 +4,8 @@ TelluridePipeline collaborates with [TellurideSensor](https://github.com/brsg/te
 
 `Broadway` is built on [GenStage](https://github.com/elixir-lang/gen_stage) that is in turn a `GenServer`.  This hierarchy of relationships is leveraged to configure, start, supervise, stop, and restart `Broadway` in this example.  
 
+See [Getting Started](#getting-started) below for instructions on starting this example.
+
 ## Stack
 
 [Elixir](https://elixir-lang.org/)
@@ -156,8 +158,6 @@ Our simple domain simply computes a running mean, min, and max value for the sen
 }
 ```
  
-# Getting Started
-
 ## Usage of TelluridePipeline.Ets.BroadwayConfig to manage Broadway configuration.
 
 ```Elixir
@@ -176,56 +176,48 @@ a_pid = :erlang.list_to_pid(String.to_charlist("<0.316.0>"))
 GenServer.stop(a_pid, :normal)
 ```
 
-## How to Run
+## <a name="getting-started"></a> Getting Started
 
-To run:
+1. Start RabbitMQ.
 
-Start RabbitMQ through one of sensor_simulator or telluride_pipeline:
-
-```Elixir
-cd sensor_simulator/
-bin/rmq-up.sh 
-```
-
-or 
+A `docker-compose.yaml` that includes RabbitMQ is provided in `telluride_pipeline`. Start RabbitMQ by executing:
 
 ```elixir
 cd telluride_pipeline/
 docker-compose up -d
 ```
 
-Start sensor_simulator according to sensor_simulator/README.md.
-
-Start telluride_pipeline:
+2. Start [TelluridePipeline](https://github.com/brsg/telluride_pipeline) by executing:
 
 ```Elixir
+cd telluride_pipeline/
 iex -S mix
-# From within iex:
+```
+
+and then, from within iex, execute:
+
+```
 TelluridePipeline.TelemetryBroadwayManager.start_or_replace_telluride_pipeline/1
 ```
 
-To run test: 
+To run the `telluride_pipeline` tests:
 
 ```elixir
 mix test --only telemetry_broadway
 ```
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `telluride_pipeline` to your list of dependencies in `mix.exs`:
+3. Start [TellurideSensor](https://github.com/brsg/telluride_sensor) by executing:
 
 ```elixir
-def deps do
-  [
-    {:telluride_pipeline, "~> 0.1.0"}
-  ]
-end
+cd telluride_sensor/
+iex -S mix
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/telluride_pipeline](https://hexdocs.pm/telluride_pipeline).
+4. Start [TellurideUI](https://github.com/brsg/telluride_ui) by executing:
+```Elixir
+cd telluride_ui/
+iex -S mix
+```
 
 ## Consulting or Partnership
 
