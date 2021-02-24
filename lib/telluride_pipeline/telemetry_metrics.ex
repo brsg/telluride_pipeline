@@ -121,6 +121,9 @@ defmodule TelluridePipeline.TelemetryMetrics do
 
     %BatchInfo{} = info = metadata[:batch_info]
     # IO.inspect(info, label: "\nBatchInfo:\t")
+
+    ## batcher_processor "partition" is the number assigned to
+    ## the batch_key
     revised_partition =
       Map.get(info, :batch_key)
       |> String.split("_")
@@ -128,7 +131,6 @@ defmodule TelluridePipeline.TelemetryMetrics do
       |> String.to_integer()
 
     batcher = Map.get(info, :batcher)
-    # partition = Map.get(info, :partition)
     size = Map.get(info, :size)
 
     metric_map =
