@@ -8,8 +8,6 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
   alias TelluridePipeline.DataContainer.{BroadwayConfig, SensorTracker}
   alias TelluridePipeline.Data.SensorAggregate
 
-  @num_batchers 3
-
   ################################################################################
   # Client interface
   ################################################################################
@@ -36,14 +34,6 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
       |> Message.put_batch_key(batch_key)
       |> Message.put_batcher(batch_partition)
     end
-
-    # handle_batch = fn _batcher, batch, _batch_info, _ ->
-      # batch
-      # |> IO.inspect(label: "batch: ")
-      # |> Enum.into([], fn %Message{} = msg ->
-        # msg.data
-      # end)
-    # end
 
     origin_pid = self()
 
