@@ -18,14 +18,15 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     IO.puts("\nTelluridePipeline.TelemetryBroadwayWorker.start_link() w/ opts #{inspect opts} \n")
 
     handle_message = fn message, _ ->
-      key = batcher_key(message)
 
-      batch_partition =
-        case partition(message) do
-          0 -> :sensor_batcher_one
-          1 -> :sensor_batcher_two
-          2 -> :sensor_batcher_one
-          unexpected -> Logger.error("Unexpected batch partition #{inspect unexpected}")
+      {batch_partition, key} =
+        case is_even(partition(message)) do
+          false ->
+            key = batcher_key(message, BroadwayConfig.sensor_batcher_one_concurrency)
+            {:sensor_batcher_one, key}
+          true ->
+            key = batcher_key(message, BroadwayConfig.sensor_batcher_two_concurrency)
+            {:sensor_batcher_two, key}
         end
 
       batch_key = to_string(batch_partition) <> "_" <> to_string(key)
@@ -149,16 +150,16 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     :ok
   end
 
-  def batcher_key(message) do
+  def batcher_key(message, concurrency) do
     message
     |> line_device_sensor_key()
-    |> :erlang.phash2(BroadwayConfig.sensor_batcher_one_concurrency)
+    |> :erlang.phash2(concurrency)
   end
 
   def partition(message) do
     message
     |> sensor_key()
-    |> :erlang.phash2(@num_batchers)
+    |> :erlang.phash2(BroadwayConfig.producer_concurrency())
   end
 
   def sensor_message(%Broadway.Message{data: broadway_message_data}) do
@@ -190,6 +191,13 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     # IO.inspect(state, label: "terminate state: ")
     IO.puts("TelemetryBroadwayWorker.terminate")
     # state
+  end
+
+  ## Helping
+
+  defp is_even(dividend) when is_integer(dividend) do
+    ## For purposes of this function, zero is treated as even
+    rem(dividend, 2) != 1
   end
 
 end
