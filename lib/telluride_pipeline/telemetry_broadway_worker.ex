@@ -8,8 +8,6 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
   alias TelluridePipeline.DataContainer.{BroadwayConfig, SensorTracker}
   alias TelluridePipeline.Data.SensorAggregate
 
-  @num_processes 4
-
   ################################################################################
   # Client interface
   ################################################################################
@@ -18,26 +16,24 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     IO.puts("\nTelluridePipeline.TelemetryBroadwayWorker.start_link() w/ opts #{inspect opts} \n")
 
     handle_message = fn message, _ ->
-      batch_partition =
-        case partition(message) do
-          0 -> :sensor_batcher_one
-          1 -> :sensor_batcher_two
-          2 -> :sensor_batcher_one
-          3 -> :sensor_batcher_two
-          unexpected -> Logger.error("Unexpected batch partition #{inspect unexpected}")
+
+      {batch_partition, key} =
+        case is_even(partition(message)) do
+          false ->
+            key = batcher_key(message, BroadwayConfig.sensor_batcher_one_concurrency)
+            {:sensor_batcher_one, key}
+          true ->
+            key = batcher_key(message, BroadwayConfig.sensor_batcher_two_concurrency)
+            {:sensor_batcher_two, key}
         end
+
+      batch_key = to_string(batch_partition) <> "_" <> to_string(key)
+      # IO.inspect(batch_key, label: "\nbatch_key:\t")
+
       message
-      |> Message.put_batch_key(batch_partition)
+      |> Message.put_batch_key(batch_key)
       |> Message.put_batcher(batch_partition)
     end
-
-    # handle_batch = fn _batcher, batch, _batch_info, _ ->
-      # batch
-      # |> IO.inspect(label: "batch: ")
-      # |> Enum.into([], fn %Message{} = msg ->
-        # msg.data
-      # end)
-    # end
 
     origin_pid = self()
 
@@ -108,7 +104,7 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
   defp track_sensor_aggregate(messages) do
     messages
     |> Enum.into([], fn %Message{} = msg -> sensor_message(msg) end)
-    |> Enum.group_by(fn %SensorMessage{} = msg -> line_device_sensor_key(msg) end)
+    |> Enum.group_by(fn %SensorMessage{} = msg -> sensor_key(msg) end)
     # |> IO.inspect(label: "grouped_batch: ")
     |> compute_by_sensor()
   end
@@ -144,11 +140,16 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     :ok
   end
 
-  def partition(message) do
+  def batcher_key(message, concurrency) do
     message
     |> line_device_sensor_key()
-    # |> IO.inspect(label: "line_device_sensor_key: ")
-    |> :erlang.phash2(@num_processes)
+    |> :erlang.phash2(concurrency)
+  end
+
+  def partition(message) do
+    message
+    |> sensor_key()
+    |> :erlang.phash2(BroadwayConfig.producer_concurrency())
   end
 
   def sensor_message(%Broadway.Message{data: broadway_message_data}) do
@@ -162,8 +163,15 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     %SensorMessage{} = sensor_message = sensor_message(message)
     line_device_sensor_key(sensor_message)
   end
-  def line_device_sensor_key(%SensorMessage{line_id: _line_id, device_id: _device_id, sensor_id: sensor_id}) do
-    # line_id <> ":" <> device_id <> ":" <> sensor_id
+  def line_device_sensor_key(%SensorMessage{line_id: line_id, device_id: device_id, sensor_id: sensor_id}) do
+    line_id <> ":" <> device_id <> ":" <> sensor_id
+  end
+
+  def sensor_key(%Broadway.Message{} = message) do
+    %SensorMessage{} = sensor_message = sensor_message(message)
+    sensor_key(sensor_message)
+  end
+  def sensor_key(%SensorMessage{sensor_id: sensor_id}) do
     sensor_id
   end
 
@@ -173,6 +181,13 @@ defmodule TelluridePipeline.TelemetryBroadwayWorker do
     # IO.inspect(state, label: "terminate state: ")
     IO.puts("TelemetryBroadwayWorker.terminate")
     # state
+  end
+
+  ## Helping
+
+  defp is_even(dividend) when is_integer(dividend) do
+    ## For purposes of this function, zero is treated as even
+    rem(dividend, 2) != 1
   end
 
 end

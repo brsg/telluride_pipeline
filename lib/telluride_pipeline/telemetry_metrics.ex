@@ -122,15 +122,22 @@ defmodule TelluridePipeline.TelemetryMetrics do
     %BatchInfo{} = info = metadata[:batch_info]
     # IO.inspect(info, label: "\nBatchInfo:\t")
 
+    ## batcher_processor "partition" is the number assigned to
+    ## the batch_key
+    revised_partition =
+      Map.get(info, :batch_key)
+      |> String.split("_")
+      |> List.last()
+      |> String.to_integer()
+
     batcher = Map.get(info, :batcher)
-    partition = Map.get(info, :partition)
     size = Map.get(info, :size)
 
     metric_map =
       %{
         node_type: "batcher_processor",
         name: batcher,
-        partition: partition,
+        partition: revised_partition,
         call_count: 1,
         msg_count: size || 1,
         last_duration: measurements[:duration],
