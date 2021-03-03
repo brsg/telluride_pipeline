@@ -210,8 +210,9 @@ iex -S mix
 4. Start [TellurideUI](https://github.com/brsg/telluride_ui) by executing:
 ```Elixir
 cd telluride_ui/
-iex -S mix
+mix phx.server
 ```
+and then point your browser at http://localhost:4000
 
 ## Consulting or Partnership
 
