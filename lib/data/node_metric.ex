@@ -2,8 +2,10 @@ defmodule TelluridePipeline.Data.NodeMetric do
 
   require Logger
   alias __MODULE__
+  alias TelluridePipeline.Metrics.SimpleMovingAverage
 
   @high_value 1_000_000_000_000
+  @sma_size 60
 
   defstruct [
     node_type: nil,
@@ -15,8 +17,10 @@ defmodule TelluridePipeline.Data.NodeMetric do
     min_duration: nil,
     max_duration: nil,
     mean_duration: nil,
+    sma_duration: nil,
     first_time: nil,
-    last_time: nil
+    last_time: nil,
+    sma: nil
   ]
 
   def new(%{
@@ -29,6 +33,7 @@ defmodule TelluridePipeline.Data.NodeMetric do
     min_duration: min_duration,
     max_duration: max_duration,
     mean_duration: mean_duration,
+    sma_duration: sma_duration,
     first_time: first_time,
     last_time: last_time
   }) do
@@ -43,8 +48,10 @@ defmodule TelluridePipeline.Data.NodeMetric do
       min_duration: min_duration,
       max_duration: max_duration,
       mean_duration: mean_duration,
+      sma_duration: sma_duration,
       first_time: first_time,
-      last_time: last_time
+      last_time: last_time,
+      sma: SimpleMovingAverage.new(@sma_size)
     }
   end
 
@@ -73,8 +80,10 @@ defmodule TelluridePipeline.Data.NodeMetric do
         min_duration: @high_value,  # Ensure next is lower
         max_duration: 0,
         mean_duration: 0,
+        sma_duration: 0,
         first_time: next.first_time,
-        last_time: next.last_time
+        last_time: next.last_time,
+        sma: SimpleMovingAverage.new(@sma_size)
       }
     combine(nil_metric, next)
   end
@@ -82,6 +91,7 @@ defmodule TelluridePipeline.Data.NodeMetric do
     total_count = current.call_count + 1
     msg_count = current.msg_count + next.msg_count
     mean_duration = ((current.mean_duration * current.call_count) + next.last_duration) / total_count
+    next_sma = SimpleMovingAverage.compute(current.sma, next.last_duration)
 
     %__MODULE__{
       node_type: current.node_type,
@@ -93,8 +103,10 @@ defmodule TelluridePipeline.Data.NodeMetric do
       min_duration: min(current.min_duration, next.min_duration),
       max_duration: max(current.max_duration, next.max_duration),
       mean_duration: mean_duration,
+      sma_duration: next_sma.value,
       first_time: min(current.first_time, next.first_time),
-      last_time: max(current.last_time, next.last_time)
+      last_time: max(current.last_time, next.last_time),
+      sma: next_sma
     }
   end
 
@@ -109,6 +121,7 @@ defmodule TelluridePipeline.Data.NodeMetric do
       min_duration: metric.min_duration,
       max_duration: metric.max_duration,
       mean_duration: metric.mean_duration,
+      sma_duration: metric.sma_duration,
       first_time: metric.first_time,
       last_time: metric.last_time
     }

@@ -31,6 +31,7 @@ defmodule TelluridePipeline.TelemetryMetrics do
         min_duration: measurements[:duration],
         max_duration: measurements[:duration],
         mean_duration: measurements[:duration],
+        sma_duration: measurements[:duration],
         first_time: measurements[:time],
         last_time: measurements[:time]
       }
@@ -61,6 +62,7 @@ defmodule TelluridePipeline.TelemetryMetrics do
         min_duration: measurements[:duration],
         max_duration: measurements[:duration],
         mean_duration: measurements[:duration],
+        sma_duration: measurements[:duration],
         first_time: measurements[:time],
         last_time: measurements[:time]
       }
@@ -107,6 +109,7 @@ defmodule TelluridePipeline.TelemetryMetrics do
         min_duration: measurements[:duration],
         max_duration: measurements[:duration],
         mean_duration: measurements[:duration],
+        sma_duration: measurements[:duration],
         first_time: measurements[:time],
         last_time: measurements[:time]
       }
@@ -144,6 +147,7 @@ defmodule TelluridePipeline.TelemetryMetrics do
         min_duration: measurements[:duration],
         max_duration: measurements[:duration],
         mean_duration: measurements[:duration],
+        sma_duration: measurements[:duration],
         first_time: measurements[:time],
         last_time: measurements[:time]
       }
