@@ -13,6 +13,6 @@
   "nimble_options": {:hex, :nimble_options, "0.3.5", "a4f6820cdcb4ee444afd78635f323e58e8a5ddf2fbbe9b9d283a99f972034bae", [:mix], [], "hexpm", "f5507cc90033a8d12769522009c80aa9164af6bab245dbd4ad421d008455f1e1"},
   "rabbit_common": {:hex, :rabbit_common, "3.8.11", "26d7fffe4935c8225262ffc70a3ffb5ef7daae6e32f7e0e01d39c1b67888cb58", [:make, :rebar3], [{:credentials_obfuscation, "2.3.0", [hex: :credentials_obfuscation, repo: "hexpm", optional: false]}, {:jsx, "2.11.0", [hex: :jsx, repo: "hexpm", optional: false]}, {:lager, "3.8.0", [hex: :lager, repo: "hexpm", optional: false]}, {:recon, "2.5.1", [hex: :recon, repo: "hexpm", optional: false]}], "hexpm", "5d64288496e719e5ca1b5f7a753c592f37b3476d8398f25d894d148cfe3a5e2c"},
   "recon": {:hex, :recon, "2.5.1", "430ffa60685ac1efdfb1fe4c97b8767c92d0d92e6e7c3e8621559ba77598678a", [:mix, :rebar3], [], "hexpm", "5721c6b6d50122d8f68cccac712caa1231f97894bab779eff5ff0f886cb44648"},
-  "ring_buffer": {:git, "https://github.com/brsg/ring_buffer.git", "9fc0e2f4bd4314e93eb4fa427651c754ebb6fa90", [tag: "v0.0.1"]},
+  "ring_buffer": {:hex, :ring_buffer, "0.1.0", "09e32ce4511cb1ee1ec712cba1b6ae8ce380aa08296c113dbce8191a1a6e6552", [:mix], [], "hexpm", "952590da266f9f6db11d5956e7d8b6f0da6e23496be16a9938fb7116b119a8a3"},
   "telemetry": {:hex, :telemetry, "0.4.2", "2808c992455e08d6177322f14d3bdb6b625fbcfd233a73505870d8738a2f4599", [:rebar3], [], "hexpm", "2d1419bd9dda6a206d7b5852179511722e2b18812310d304620c7bd92a13fcef"},
 }

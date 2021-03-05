@@ -28,7 +28,7 @@ defmodule TelluridePipeline.MixProject do
       {:broadway, "~> 0.6"},
       {:broadway_rabbitmq, "~> 0.6"},
       {:json, "~> 1.2"},
-      {:ring_buffer, git: "https://github.com/brsg/ring_buffer.git", tag: "v0.0.1"}
+      {:ring_buffer, "~> 0.1"}
     ]
   end
 end
